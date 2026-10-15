@@ -130,7 +130,17 @@ def main(argv=None):
                                 at=datetime.fromisoformat(args.at) if args.at else None, overrides=overrides)
     except (ValueError, OSError, sqlite3.Error, RuntimeError) as error:
         parser.exit(1, f'Reset nicht abgeschlossen: {error}\n')
+    database = Database(args.db)
+    with database.connect() as db:
+        from .service import availability
+        stock = availability(db, 'abi-ball')
+        raised = db.execute('SELECT COALESCE(SUM(amount_cents), 0) FROM ledger').fetchone()[0]
+    whole, cents = divmod(raised, 100)
     print(f'Ausgangszustand {args.scenario!r} vorbereitet. Backend und App neu starten.')
+    print(f'Datenbank: {database.path}')
+    amount = f'{whole:,}'.replace(',', '.') + f',{cents:02d}'
+    print(f'Gespeicherter Stand: {amount} EUR Abikasse')
+    print(f"Karten: {stock['available']} verfügbar | {stock['reserved']} reserviert | {stock['paid']} bezahlt")
     if backup:
         print(f'Sicherung: {backup}')
     return 0

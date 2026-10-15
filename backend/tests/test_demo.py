@@ -115,3 +115,14 @@ def test_no_public_reset_route(tmp_path):
     with TestClient(create_app(str(tmp_path / 'api.sqlite3'), 'demo-test-token')) as client:
         assert client.post('/api/v1/reset', headers=HEADERS).status_code == 404
         assert client.post('/api/v1/demo-content/reset', headers=HEADERS).status_code == 404
+
+
+def test_cli_reports_saved_database_totals(tmp_path, monkeypatch, capsys):
+    from appi import demo
+    monkeypatch.setattr(demo, 'ensure_backend_stopped', lambda port: None)
+    path = tmp_path / 'reported.sqlite3'
+    assert main(['reset', '--db', str(path), '--confirm', 'RESET']) == 0
+    output = capsys.readouterr().out
+    assert str(path.resolve()) in output
+    assert '1.755,00 EUR Abikasse' in output
+    assert '293 verfügbar | 4 reserviert | 3 bezahlt' in output
