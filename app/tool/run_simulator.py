@@ -15,34 +15,45 @@ if not flutter:
 
 if not (app_dir / 'ios' / 'Runner.xcodeproj').exists():
     raise SystemExit('Bitte zuerst python3 tool/prepare_ios.py und flutter pub get ausführen.')
-# LaunchServices does not always register Xcode's bundled Simulator by name.
-# Respect DEVELOPER_DIR, otherwise use the active xcode-select installation.
-developer_dir = os.environ.get('DEVELOPER_DIR')
-if not developer_dir:
-    selected = subprocess.run(['xcode-select', '-p'], capture_output=True, text=True)
-    if selected.returncode == 0:
-        developer_dir = selected.stdout.strip()
-simulator = Path(developer_dir) / 'Applications' / 'Simulator.app' if developer_dir else None
-if simulator is not None and simulator.is_dir():
-    launch = subprocess.run(['open', str(simulator)])
-else:
-    launch = subprocess.run(['open', '-a', 'Simulator'])
-if launch.returncode != 0:
-    raise SystemExit('Simulator konnte nicht geöffnet werden. Bitte Xcode > Open Developer Tool > Simulator öffnen und xcode-select -p prüfen.')
-for _ in range(20):
+def ios_simulators():
     result = subprocess.run([flutter, 'devices', '--machine'], capture_output=True, text=True)
     if result.returncode != 0:
         raise SystemExit(result.stderr or result.stdout)
     try:
-        devices = [d for d in json.loads(result.stdout)
-                   if d.get('emulator') and d.get('targetPlatform') == 'ios']
+        return [device for device in json.loads(result.stdout)
+                if device.get('emulator') and device.get('targetPlatform') == 'ios']
     except json.JSONDecodeError:
         raise SystemExit('Flutter-Geräteliste konnte nicht gelesen werden. Bitte flutter devices prüfen.')
-    if devices:
-        break
-    time.sleep(1)
+
+# Prefer an already booted simulator. Opening an app is unnecessary in this case.
+devices = ios_simulators()
+if not devices:
+    selected = subprocess.run(['xcode-select', '-p'], capture_output=True, text=True)
+    roots = []
+    if os.environ.get('DEVELOPER_DIR'):
+        roots.append(Path(os.environ['DEVELOPER_DIR']))
+    if selected.returncode == 0:
+        roots.append(Path(selected.stdout.strip()))
+    roots.extend(app / 'Contents' / 'Developer' for app in Path('/Applications').glob('Xcode*.app'))
+    candidates = []
+    for root in roots:
+        if root.suffix == '.app':
+            root = root / 'Contents' / 'Developer'
+        candidates.append(root / 'Applications' / 'Simulator.app')
+    simulator = next((path for path in candidates if path.is_dir()), None)
+    command = ['open', str(simulator)] if simulator else ['open', '-a', 'Simulator']
+    launch = subprocess.run(command, capture_output=True, text=True)
+    if launch.returncode != 0:
+        print('Simulator bitte in Xcode über Open Developer Tool > Simulator öffnen.', flush=True)
+    for _ in range(20):
+        devices = ios_simulators()
+        if devices:
+            break
+        time.sleep(1)
+    if not devices:
+        raise SystemExit('Kein gestarteter iOS-Simulator gefunden. Im Simulator ein iPhone öffnen und erneut starten. Falls es bereits läuft: Ausgabe von flutter devices und xcode-select -p prüfen.')
 else:
-    raise SystemExit('Kein gestarteter iOS-Simulator gefunden. Im Simulator über Datei > Simulator öffnen ein Gerät wählen und erneut starten.')
+    print('Bereits gestarteten iOS-Simulator gefunden.', flush=True)
 
 requested = os.environ.get('APPI_SIMULATOR_ID')
 if requested:
