@@ -6,6 +6,15 @@ Der Splash zeigt das originale PMG-Logo, PMG AppI und fiktive Schüler im Hinter
 Er bleibt wie bisher nur bis zum ersten Konfigurationsabruf sichtbar. Keine
 künstliche Mindestdauer und keine Änderung am Backend oder an den Demo-Daten.
 
+Auch der native iOS-Startbildschirm vor dem ersten Flutter-Frame verwendet jetzt
+Logo, Titel und Schüler-Motiv. Die Vorlage liegt in
+`app/tool/branding/LaunchScreen.storyboard`; `prepare_ios.py` kopiert sie und die
+Bild-Assets in den lokal generierten iOS-Host. Dieser Schritt ist nach dem Pull
+erneut notwendig. Nur Dart-Hot-Restart aktualisiert den nativen Splash nicht.
+Apple: https://developer.apple.com/documentation/xcode/specifying-your-apps-launch-screen.
+Bei einem weiter angezeigten alten Startbild zuerst den Simulator vollständig
+beenden und neu öffnen: iOS kann den Startbildschirm zwischenspeichern.
+
 ## Assets und Herkunft
 
 Alle Dateien liegen unter `app/assets/branding/` und werden ohne Netzwerk gebündelt:
@@ -30,6 +39,7 @@ flutter pub get
 python3 tool/prepare_ios.py
 flutter analyze
 flutter test
+python3 -m unittest discover -s tool/tests
 flutter run
 ```
 
@@ -40,7 +50,9 @@ lokal generiert und Git-ignoriert. Für das native Icon ist ein neuer Flutter-La
 erforderlich; Hot Reload genügt nicht. Das Backend kann weiterlaufen.
 
 Zusätzliche Widget-Tests prüfen das Splash-Layout bei schmalem Display und großer
-Schrift sowie die Dekodierbarkeit der gebündelten Assets. Tests, Analyzer und
+Schrift sowie die Dekodierbarkeit der gebündelten Assets. Ein Python-Regressionstest
+prüft die Übernahme des nativen Splashs samt auflösbaren Bild-Assets in einen
+bereits vorhandenen iOS-Host (native Werkzeuge werden dafür ersetzt). Tests, Analyzer und
 iOS-Build werden ausschließlich lokal ausgeführt; durch die KI nicht ausgeführt.
 Python-Syntax und Git-Diff wurden geprüft.
 

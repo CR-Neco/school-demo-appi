@@ -35,6 +35,7 @@ plist_path = ios_dir / 'Runner' / 'Info.plist'
 with plist_path.open('rb') as stream:
     config = plistlib.load(stream)
 config['CFBundleDisplayName'] = 'PMG AppI'
+config['UILaunchStoryboardName'] = 'LaunchScreen'
 config['NSLocalNetworkUsageDescription'] = 'Verbindung zum lokalen AppI-Demo-Backend und Flutter-Debugger.'
 # Only local networking is allowed as a demo exception; no global arbitrary loads.
 config.setdefault('NSAppTransportSecurity', {})['NSAllowsLocalNetworking'] = True
@@ -69,4 +70,21 @@ for idiom, sizes in (
 (icon_dir / 'Contents.json').write_text(
     json.dumps({'images': images, 'info': {'version': 1, 'author': 'xcode'}}, indent=2) + '\n'
 )
-print('iOS-Host und PMG-App-Icon vorbereitet. AppI-Quellcode bleibt unverändert.', flush=True)
+
+# iOS shows this storyboard before Flutter renders its first frame. Updating
+# only the Dart splash leaves the generated host's white launch screen intact.
+for name, filename in (
+    ('PMGSplashBackground', 'splash-students.jpg'),
+    ('PMGLogo', 'pmg-logo.png'),
+):
+    destination = ios_dir / 'Runner' / 'Assets.xcassets' / f'{name}.imageset'
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(app_dir / 'assets' / 'branding' / filename, destination / filename)
+    (destination / 'Contents.json').write_text(json.dumps({
+        'images': [{'idiom': 'universal', 'filename': filename}],
+        'info': {'version': 1, 'author': 'xcode'},
+    }, indent=2) + '\n')
+launch_screen = ios_dir / 'Runner' / 'Base.lproj' / 'LaunchScreen.storyboard'
+launch_screen.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(app_dir / 'tool' / 'branding' / 'LaunchScreen.storyboard', launch_screen)
+print('iOS-Host, PMG-App-Icon und nativer Splash vorbereitet.', flush=True)
