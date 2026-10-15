@@ -5,7 +5,6 @@ import '../config.dart';
 import '../fundraising.dart';
 import '../widgets/fundraising_card.dart';
 import '../widgets/components.dart';
-import '../widgets/school_artwork.dart';
 import 'detail.dart';
 import 'tickets.dart';
 import '../tickets.dart';
@@ -103,7 +102,12 @@ class HomeScreen extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        const SchoolArtwork(),
+                        Image.asset(
+                          'assets/branding/pmg-campus.jpg',
+                          fit: BoxFit.cover,
+                          alignment: const Alignment(0, 0.1),
+                          semanticLabel: 'Schulhof des Philipp-Melanchthon-Gymnasiums Meine',
+                        ),
                         Positioned(
                           left: 16,
                           right: 16,
@@ -126,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                         const Positioned(
                           right: 10,
                           top: 10,
-                          child: InfoChip('Symbolbild'),
+                          child: InfoChip('PMG Meine'),
                         ),
                       ],
                     ),
