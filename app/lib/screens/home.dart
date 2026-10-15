@@ -7,10 +7,13 @@ import '../widgets/fundraising_card.dart';
 import '../widgets/components.dart';
 import '../widgets/school_artwork.dart';
 import 'detail.dart';
+import 'tickets.dart';
+import '../tickets.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     super.key,
+    this.tickets,
     required this.config,
     required this.error,
     required this.loading,
@@ -20,6 +23,7 @@ class HomeScreen extends StatelessWidget {
     required this.dashboardLoading,
     required this.onRefreshDashboard,
   });
+  final TicketSession? tickets;
   final SchoolConfig? config;
   final String? error;
   final bool loading;
@@ -186,7 +190,9 @@ class HomeScreen extends StatelessWidget {
                               onTap: () async {
                                 await Navigator.of(context).push(
                                 MaterialPageRoute<void>(
-                                  builder: (_) => SectionDetail(
+                                  builder: (_) => section.title == 'Abiball-Tickets' && tickets != null
+                                    ? TicketsScreen(session: tickets!, year: year)
+                                    : SectionDetail(
                                     title: section.title,
                                     icon: section.icon,
                                     description: section.description,
