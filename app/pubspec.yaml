@@ -1,6 +1,6 @@
 name: appi
 publish_to: none
-description: AppI 2027 – kleine Simulator-Demo zur Abiball-Organisation.
+description: PMG AppI – kleine Simulator-Demo zur Abiball-Organisation.
 version: 0.1.0+1
 environment:
   sdk: '>=3.5.0 <4.0.0'

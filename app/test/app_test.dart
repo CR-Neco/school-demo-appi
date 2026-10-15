@@ -24,7 +24,8 @@ void main() {
         const SchoolConfig(school: 'Demo Schule', year: 2028),
       );
       await tester.pumpAndSettle();
-      expect(find.text('AppI 2028'), findsOneWidget);
+      expect(find.text('PMG AppI'), findsOneWidget);
+      expect(find.text('Abiturjahrgang 2028'), findsOneWidget);
       expect(find.text('Demo Schule'), findsOneWidget);
       expect(find.text('Lokales Backend verbunden'), findsOneWidget);
     },

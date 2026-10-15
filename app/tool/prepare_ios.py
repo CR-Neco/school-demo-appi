@@ -33,7 +33,7 @@ if not (ios_dir / 'Runner.xcodeproj' / 'project.pbxproj').exists():
 plist_path = ios_dir / 'Runner' / 'Info.plist'
 with plist_path.open('rb') as stream:
     config = plistlib.load(stream)
-config['CFBundleDisplayName'] = 'AppI 2027'
+config['CFBundleDisplayName'] = 'PMG AppI'
 config['NSLocalNetworkUsageDescription'] = 'Verbindung zum lokalen AppI-Demo-Backend und Flutter-Debugger.'
 # Only local networking is allowed as a demo exception; no global arbitrary loads.
 config.setdefault('NSAppTransportSecurity', {})['NSAllowsLocalNetworking'] = True

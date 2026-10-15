@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
                   spacing: 12,
                   children: [
                     Text(
-                      '✦ AppI $year',
+                      AppConfig.name,
                       style: const TextStyle(
                         fontSize: 23,
                         fontWeight: FontWeight.w900,
@@ -53,7 +53,8 @@ class HomeScreen extends StatelessWidget {
                     color: Color(0xFF617079),
                   ),
                 ),
-                const SizedBox(height: 10),
+                Text('Abiturjahrgang $year', style: const TextStyle(fontSize: 12, color: Color(0xFF617079))),
+              const SizedBox(height: 10),
                 const Text(
                   'Das Beste kommt\nzum Abschluss.',
                   style: TextStyle(

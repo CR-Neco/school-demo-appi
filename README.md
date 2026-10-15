@@ -1,4 +1,4 @@
-# AppI 2027
+# PMG AppI
 
 Kleine AI-Coding-Demo zur Abiball-Organisation am PMG Meine.
 Repository: school-demo-appi. Vorgängeridee: Golden Chalk Awards.
@@ -55,7 +55,7 @@ Tokens werden nicht als Task-Argumente oder im Repository gespeichert.
 ## Komfortstart per Doppelklick (macOS)
 
 Nach der einmaligen Python-/venv-Einrichtung im Finder im Projektordner
-**Start-AppI-Backend.command** doppelt anklicken. Ein separates Terminalfenster
+**backend_appi.command** doppelt anklicken. Ein separates Terminalfenster
 startet das Backend unabhängig von VS Code. Fenster offen lassen, stoppen mit
 **Ctrl+C**. Beim nächsten Mal reicht wieder ein Doppelklick.
 
@@ -76,7 +76,7 @@ weiterhin nicht automatisch eingelesen.
 Wenn macOS fehlende Ausführungsrechte meldet, einmal im Projektordner:
 
 ```bash
-chmod +x Start-AppI-Backend.command
+chmod +x backend_appi.command
 ```
 
 ## Tests ausschließlich lokal

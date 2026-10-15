@@ -63,7 +63,7 @@ class _AppiAppState extends State<AppiApp> {
   @override
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
-    title: 'AppI ${_config?.year ?? AppConfig.year}',
+    title: AppConfig.name,
     theme: ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: const Color(0xFFF6F6F0),
@@ -109,7 +109,7 @@ class _Splash extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               const Text(
-                'AppI ${AppConfig.year}',
+                AppConfig.name,
                 style: TextStyle(
                   color: accent,
                   fontSize: 48,
@@ -122,6 +122,8 @@ class _Splash extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
               const SizedBox(height: 14),
+              const Text('Abiturjahrgang ${AppConfig.year}', style: TextStyle(color: Colors.white70)),
+              const SizedBox(height: 8),
               const Text(
                 AppConfig.school,
                 textAlign: TextAlign.center,

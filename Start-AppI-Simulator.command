@@ -11,7 +11,7 @@ fail() {
 [ "$(uname -s)" = Darwin ] || fail "Dieser Starter benötigt macOS und den iOS-Simulator."
 command -v flutter >/dev/null 2>&1 || fail "Flutter nicht im PATH. Starte zunächst über VS Code: cd app && python3 tool/run_simulator.py"
 command -v python3 >/dev/null 2>&1 || fail "Python 3 wird für die Simulator-Auswahl benötigt."
-printf '\033]0;AppI 2027 – Simulator\007'
+printf '\033]0;PMG AppI – Simulator\007'
 printf '\nAppI-Simulator starten. Backend bitte separat geöffnet lassen.\n'
 cd "$PROJECT_DIR/app"
 python3 tool/prepare_ios.py || fail "iOS-Projekt konnte nicht vorbereitet werden."
