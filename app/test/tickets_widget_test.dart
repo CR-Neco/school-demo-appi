@@ -102,7 +102,9 @@ void main() {
     expect(tester.widget<TextFormField>(find.byKey(const Key('buyer-name'))).controller!.text, 'Lina Beispiel');
     final count = tester.widget<TextFormField>(find.byKey(const Key('ticket-quantity')));
     expect(count.controller!.text, '2');
-    expect(count.readOnly, isFalse);
+    expect(tester.widget<TextField>(find.descendant(
+      of: find.byKey(const Key('ticket-quantity')),
+      matching: find.byType(TextField))).readOnly, isFalse);
     expect(find.text('Reservierung gespeichert'), findsNothing);
   });
 
@@ -121,7 +123,9 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await open(tester, session);
     await show(tester, find.byKey(const Key('buyer-name')));
-    expect(tester.widget<TextFormField>(find.byKey(const Key('buyer-name'))).readOnly, isTrue);
+    expect(tester.widget<TextField>(find.descendant(
+      of: find.byKey(const Key('buyer-name')),
+      matching: find.byType(TextField))).readOnly, isTrue);
     api.handler = (request) async => confirmed(request);
     await show(tester, find.text('Dieselbe Anfrage erneut senden'));
     await tester.tap(find.text('Dieselbe Anfrage erneut senden'));

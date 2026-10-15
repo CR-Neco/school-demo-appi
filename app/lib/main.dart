@@ -33,7 +33,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _api = widget.api ?? LocalApi();
     final api = _api;
-    if (api is TicketApi) _tickets = TicketSession(api);
+    if (api is TicketApi) _tickets = TicketSession(api as TicketApi);
     _load();
   }
 

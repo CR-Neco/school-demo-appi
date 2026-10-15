@@ -50,7 +50,7 @@ void main() {
     server.listen((request) async {
       methods.add(request.method);
       auth.add(request.headers.value(HttpHeaders.authorizationHeader));
-      final body = jsonDecode(await request.transform(utf8.decoder).join()) as Map<String, dynamic>;
+      final body = jsonDecode(await request.cast<List<int>>().transform(utf8.decoder).join()) as Map<String, dynamic>;
       bodies.add(body);
       if (bodies.length == 1) {
         // Simulate a server failure after the write may already have committed.
