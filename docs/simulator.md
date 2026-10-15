@@ -10,8 +10,9 @@ Kiosk und Verkaufsstände sind in SDA-14 mit fiktiven Angeboten, lokalen
 Illustrationen und aktuellen Demo-Ledger-Summen befüllt. Ausgangsdaten und
 Reset: [demo-data.md](demo-data.md). Keine aktuellen Angebote der Schule.
 
-Der Splash bleibt nur während des ersten Konfigurationsabrufs sichtbar, maximal
-bis zum Netzwerk-Timeout. Keine künstliche Mindestdauer. Bei Fehlern zeigt die
+Der Splash bleibt ab dem ersten Flutter-Frame mindestens zwei Sekunden sichtbar.
+Der erste Konfigurationsabruf läuft parallel; bei langsamem Backend wartet der
+Splash darüber hinaus bis zum Abschluss bzw. Netzwerk-Timeout. Bei Fehlern zeigt die
 Startseite einen Hinweis und Wiederholen; die Vorschau bleibt nutzbar.
 
 Die Startseiten-Bildkachel nutzt das bereitgestellte PMG-Schulbild. Der Splash

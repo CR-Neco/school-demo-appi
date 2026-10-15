@@ -36,17 +36,34 @@ Future<void> start(WidgetTester tester, FakeApi api) async {
 }
 
 void main() {
-  testWidgets('Splash transitions without artificial delay; name is year independent', (tester) async {
+  testWidgets('Splash stays for two seconds; name is year independent', (tester) async {
     final api = FakeApi();
     await tester.pumpWidget(AppiApp(api: api));
     expect(find.text('Jahrgang wird geladen …'), findsOneWidget);
     api.result.complete(const SchoolConfig(school: 'Demo Schule', year: 2028));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1999));
+    expect(find.text('Jahrgang wird geladen …'), findsOneWidget);
+    expect(find.text('Fundraising Abi 2028'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 1));
     await tester.pumpAndSettle();
     expect(find.text('PMG AppI'), findsOneWidget);
     expect(find.text('Abiturjahrgang 2028'), findsOneWidget);
     expect(find.text('Fundraising Abi 2028'), findsOneWidget);
     expect(find.text('Demo Schule'), findsOneWidget);
     expect(find.text('0,00 €'), findsOneWidget);
+  });
+
+  testWidgets('Slow config keeps splash visible past two seconds and then shows errors', (tester) async {
+    final api = FakeApi();
+    await tester.pumpWidget(AppiApp(api: api));
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('Jahrgang wird geladen …'), findsOneWidget);
+    api.result.completeError(const ApiFailure('Bitte Backend starten.'));
+    await tester.pumpAndSettle();
+    expect(find.text('Jahrgang wird geladen …'), findsNothing);
+    await show(tester, find.text('Bitte Backend starten.'));
+    expect(find.text('Schuldaten nicht verfügbar'), findsOneWidget);
   });
 
   testWidgets('Config error does not block preview navigation', (tester) async {
@@ -108,7 +125,7 @@ void main() {
     await tester.pumpWidget(AppiApp(api: api));
     api.result.complete(const SchoolConfig(school: 'Demo Schule', year: 2028));
     await tester.pump();
-    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
     expect(find.text('Finanzierungsstand wird geladen …'), findsOneWidget);
     expect(find.text('0,00 €'), findsNothing);
     pending.complete(const Fundraising(targetCents: 10000, raisedCents: 3500));

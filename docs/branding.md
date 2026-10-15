@@ -3,8 +3,11 @@
 Die Bildkachel auf der Startseite verwendet das tatsächliche Schulbild. Die
 anderen Kacheln behalten ihre vorhandenen Größen als mögliche Live-Änderungen.
 Der Splash zeigt das originale PMG-Logo, PMG AppI und fiktive Schüler im Hintergrund.
-Er bleibt wie bisher nur bis zum ersten Konfigurationsabruf sichtbar. Keine
-künstliche Mindestdauer und keine Änderung am Backend oder an den Demo-Daten.
+Er bleibt ab dem ersten Flutter-Frame mindestens zwei Sekunden sichtbar. Der
+Konfigurationsabruf läuft parallel; dauert er länger, bleibt der Splash bis
+zu dessen Abschluss sichtbar. Auch bei einem schnellen Backend-Fehler gilt
+die Mindestdauer. Kein zusätzlicher Aufschub bei späterem Wiederholen. Keine
+Änderung am Backend oder an den Demo-Daten.
 
 Auch der native iOS-Startbildschirm vor dem ersten Flutter-Frame verwendet jetzt
 Logo, Titel und Schüler-Motiv. Die Vorlage liegt in

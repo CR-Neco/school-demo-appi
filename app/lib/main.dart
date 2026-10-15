@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'api.dart';
@@ -26,6 +28,8 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   SchoolConfig? _config;
   String? _error;
   bool _initial = true;
+  bool _splashElapsed = false;
+  Timer? _splashTimer;
   bool _loading = false;
   Fundraising? _dashboard;
   String? _dashboardError;
@@ -34,6 +38,12 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _splashTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) setState(() { _splashElapsed = true; });
+      });
+    });
     _api = widget.api ?? LocalApi();
     final api = _api;
     if (api is TicketApi) {
@@ -97,6 +107,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _splashTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _org?.dispose();
     _tickets?.dispose();
@@ -121,7 +132,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
         foregroundColor: ink,
       ),
     ),
-    home: _initial
+    home: _initial || !_splashElapsed
         ? const BrandSplash()
         : HomeScreen(
             tickets: _tickets,
