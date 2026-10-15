@@ -18,6 +18,43 @@ class FakeTicketApi implements TicketApi {
   int stockCalls = 0;
   int receiptCalls = 0;
   Future<Uint8List> Function(String)? receiptHandler;
+  Future<List<Reservation>> Function()? listLoader;
+  Future<Reservation> Function(String)? detailLoader, paymentHandler, cancelHandler;
+  Future<Reservation> Function(String, int, String)? extendHandler;
+  final List<String> detailRequests = [], paymentRequests = [], cancelRequests = [], extensionIds = [];
+  int listCalls = 0;
+
+  @override
+  Future<List<Reservation>> loadReservations() async {
+    listCalls++;
+    if (listLoader != null) return await listLoader!();
+    return [];
+  }
+  @override
+  Future<Reservation> loadReservation(String reference) async {
+    detailRequests.add(reference);
+    if (detailLoader != null) return await detailLoader!(reference);
+    throw const TicketFailure('Reservierung nicht gefunden.');
+  }
+  @override
+  Future<Reservation> confirmPayment(String reference) async {
+    paymentRequests.add(reference);
+    if (paymentHandler != null) return await paymentHandler!(reference);
+    throw const TicketFailure('Zahlung nicht vorbereitet.');
+  }
+  @override
+  Future<Reservation> cancelReservation(String reference) async {
+    cancelRequests.add(reference);
+    if (cancelHandler != null) return await cancelHandler!(reference);
+    throw const TicketFailure('Storno nicht vorbereitet.');
+  }
+  @override
+  Future<Reservation> extendReservation(String reference, {required int days, required String requestId}) async {
+    extensionIds.add(requestId);
+    if (extendHandler != null) return await extendHandler!(reference, days, requestId);
+    throw const TicketFailure('Verlängerung nicht vorbereitet.');
+  }
+
   Future<Reservation> Function(ReservationRequest)? handler;
   Future<TicketStock> Function()? stockHandler;
   @override

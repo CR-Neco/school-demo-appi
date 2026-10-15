@@ -46,7 +46,7 @@ Optional lässt sich der Token beim App-Start per `--dart-define=APPI_ORG_TOKEN=
 - Zurück zum Dashboard und erneutes Öffnen behalten den offenen Vorgang für diesen
   App-Lauf bei. Noch keine dauerhafte lokale Wiederaufnahme nach App-Beendigung:
   bei unklarer Antwort zuerst erneut senden und die Bestätigung abwarten. Bereits
-  gespeicherte Buchungen bleiben im Backend bestehen. Org-Liste folgt SDA-13.
+  gespeicherte Buchungen bleiben im Backend bestehen. Die Org-Liste kann die gespeicherten Fälle wieder öffnen (siehe [Org-Workflow](org-workflow.md)).
 - Scheitert die Aktualisierung der Verfügbarkeit, bleibt die gespeicherte
   Reservierung bestätigt; es wird kein veralteter Restbestand als aktuell gezeigt.
 
@@ -55,7 +55,8 @@ Optional lässt sich der Token beim App-Start per `--dart-define=APPI_ORG_TOKEN=
 SDA-12 ergänzt den tatsächlichen PDF-Beleg mit Demo-Zahlungsdaten, QR und Teilen.
 Die Reservierungsübersicht bleibt daneben als kompakte Datenansicht erhalten.
 Einrichtung und Abnahme des PDFs: [receipts.md](receipts.md).
-SDA-13 ergänzt Zahlungseingang, Verlängerung und Storno in der Org-Ansicht.
+SDA-13 ergänzt Zahlungseingang, Verlängerung und Storno in der Org-Ansicht
+([Demo-Ablauf](org-workflow.md)).
 PMG-Branding ist als spätere Änderung vorgemerkt; Card-Größen bleiben bewusst
 für mögliche Schülerideen unverändert.
 

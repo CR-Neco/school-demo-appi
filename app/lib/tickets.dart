@@ -16,6 +16,11 @@ abstract interface class TicketApi {
   Future<TicketStock> loadTicketStock(String eventId);
   Future<Reservation> reserveTickets(ReservationRequest request);
   Future<Uint8List> loadReceipt(String reference);
+  Future<List<Reservation>> loadReservations();
+  Future<Reservation> loadReservation(String reference);
+  Future<Reservation> confirmPayment(String reference);
+  Future<Reservation> cancelReservation(String reference);
+  Future<Reservation> extendReservation(String reference, {required int days, required String requestId});
 }
 
 int _integer(Map<String, dynamic> json, String key) {
@@ -61,7 +66,7 @@ class ReservationRequest {
 class Reservation {
   const Reservation({required this.reference, required this.eventId,
     required this.name, required this.quantity, required this.priceCents,
-    required this.totalCents, required this.status, required this.expiresAt});
+    required this.totalCents, required this.status, required this.expiresAt, this.overdue = false});
   factory Reservation.fromJson(Map<String, dynamic> json) {
     final status = _text(json, 'status');
     if (!{'reserved', 'paid', 'cancelled'}.contains(status)) {
@@ -73,15 +78,19 @@ class Reservation {
     if (quantity < 1 || total != quantity * price) {
       throw const FormatException('Ungültiger Betrag');
     }
+    if (json['overdue'] != null && json['overdue'] is! bool) throw const FormatException('Ungültige Fristinformation');
     return Reservation(reference: _text(json, 'id'), eventId: _text(json, 'event_id'),
       name: _text(json, 'name'), quantity: quantity, priceCents: price,
-      totalCents: total, status: status, expiresAt: DateTime.parse(_text(json, 'expires_at')));
+      totalCents: total, status: status, expiresAt: DateTime.parse(_text(json, 'expires_at')), overdue: json['overdue'] == true);
   }
   final String reference, eventId, name, status;
   final int quantity, priceCents, totalCents;
   final DateTime expiresAt;
+  final bool overdue;
+  bool get isOpen => status == 'reserved';
   String get statusLabel => switch (status) {
-    'paid' => 'Bezahlt', 'cancelled' => 'Storniert', _ => 'Reserviert · noch nicht bezahlt',
+    'paid' => 'Bezahlt', 'cancelled' => 'Storniert',
+    _ => overdue ? 'Überfällig · weiter reserviert' : 'Reserviert · noch nicht bezahlt',
   };
 }
 
@@ -146,6 +155,12 @@ class TicketSession extends ChangeNotifier {
       submitting = false;
       if (!_disposed) notifyListeners();
     }
+  }
+
+  void updateReservation(Reservation value) {
+    if (_disposed || reservation?.reference != value.reference) return;
+    reservation = value;
+    notifyListeners();
   }
 
   void newOrder() {

@@ -9,11 +9,14 @@ import '../widgets/school_artwork.dart';
 import 'detail.dart';
 import 'tickets.dart';
 import '../tickets.dart';
+import '../org.dart';
+import 'org.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     super.key,
     this.tickets,
+    this.org,
     required this.config,
     required this.error,
     required this.loading,
@@ -24,6 +27,7 @@ class HomeScreen extends StatelessWidget {
     required this.onRefreshDashboard,
   });
   final TicketSession? tickets;
+  final OrgSession? org;
   final SchoolConfig? config;
   final String? error;
   final bool loading;
@@ -192,6 +196,8 @@ class HomeScreen extends StatelessWidget {
                                 MaterialPageRoute<void>(
                                   builder: (_) => section.title == 'Abiball-Tickets' && tickets != null
                                     ? TicketsScreen(session: tickets!, year: year)
+                                    : section.title == 'Org-Team' && org != null
+                                    ? OrgScreen(session: org!)
                                     : SectionDetail(
                                     title: section.title,
                                     icon: section.icon,

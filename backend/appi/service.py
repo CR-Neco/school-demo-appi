@@ -71,10 +71,19 @@ def cancel(db, ref):
     db.execute("UPDATE reservations SET status='cancelled' WHERE id=?", (ref,))
     return present(get_reservation(db, ref))
 
-def extend(db, ref, days):
+def extend(db, ref, days, request_id=None):
+    key = str(request_id) if request_id is not None else None
+    if key is not None:
+        existing = db.execute('SELECT reservation_id, days FROM reservation_extensions WHERE request_id=?', (key,)).fetchone()
+        if existing:
+            if (existing['reservation_id'], existing['days']) != (ref, days):
+                raise DomainError(409, 'request_conflict', 'Anfragereferenz bereits anders verwendet.')
+            return present(get_reservation(db, ref))
     row = get_reservation(db, ref)
     if row['status'] != 'reserved':
         raise DomainError(409, 'invalid_state', 'Nur offene Reservierungen können verlängert werden.')
     base = max(now(), datetime.fromisoformat(row['expires_at']))
     db.execute('UPDATE reservations SET expires_at=? WHERE id=?', ((base+timedelta(days=days)).isoformat(), ref))
+    if key is not None:
+        db.execute('INSERT INTO reservation_extensions (request_id, reservation_id, days) VALUES (?, ?, ?)', (key, ref, days))
     return present(get_reservation(db, ref))

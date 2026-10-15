@@ -96,6 +96,43 @@ class LocalApi implements AppiApi, TicketApi {
     return await _request('GET', 'reservations/${Uri.encodeComponent(reference)}/receipt.pdf', pdf: true) as Uint8List;
   }
 
+  @override
+  Future<List<Reservation>> loadReservations() async {
+    try {
+      final value = await _request('GET', 'reservations', authenticated: true);
+      if (value is! List) throw const FormatException('Liste erwartet');
+      return value.map((item) => Reservation.fromJson(_object(item))).toList();
+    } on FormatException {
+      throw const TicketFailure('Die Reservierungsliste ist unvollständig.');
+    }
+  }
+
+  @override
+  Future<Reservation> loadReservation(String reference) async {
+    try {
+      return Reservation.fromJson(_object(await _request('GET', 'reservations/${Uri.encodeComponent(reference)}', authenticated: true)));
+    } on FormatException {
+      throw const TicketFailure('Die Reservierungsdaten sind unvollständig.');
+    }
+  }
+
+  Future<Reservation> _changeReservation(String reference, String action, {Map<String, dynamic>? body}) async {
+    final result = await _request('POST', 'reservations/${Uri.encodeComponent(reference)}/$action', body: body);
+    try {
+      return Reservation.fromJson(_object(result));
+    } catch (_) {
+      throw const TicketFailure('Die Bestätigung ist unvollständig. Bitte dieselbe Änderung erneut senden.', outcomeUnknown: true);
+    }
+  }
+
+  @override
+  Future<Reservation> confirmPayment(String reference) => _changeReservation(reference, 'payment');
+  @override
+  Future<Reservation> cancelReservation(String reference) => _changeReservation(reference, 'cancel');
+  @override
+  Future<Reservation> extendReservation(String reference, {required int days, required String requestId}) =>
+      _changeReservation(reference, 'extend', body: {'days': days, 'request_id': requestId});
+
   Map<String, dynamic> _object(dynamic value) {
     if (value is! Map<String, dynamic>) throw const FormatException('JSON-Objekt erwartet');
     return value;
@@ -111,7 +148,7 @@ class LocalApi implements AppiApi, TicketApi {
     }
   }
 
-  Future<dynamic> _request(String method, String path, {Map<String, dynamic>? body, bool pdf = false}) async {
+  Future<dynamic> _request(String method, String path, {Map<String, dynamic>? body, bool pdf = false, bool authenticated = false}) async {
     HttpClientRequest? activeRequest;
     bool timedOut = false;
     final writing = method == 'POST';
@@ -123,7 +160,7 @@ class LocalApi implements AppiApi, TicketApi {
         request.abort();
         throw TimeoutException('Verbindung zu spät geöffnet');
       }
-      if (writing || pdf) {
+      if (writing || pdf || authenticated) {
         request.headers.set(HttpHeaders.authorizationHeader, 'Bearer ${orgToken.trim()}');
       }
       if (pdf) request.headers.set(HttpHeaders.acceptHeader, 'application/pdf');

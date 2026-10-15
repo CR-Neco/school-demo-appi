@@ -15,6 +15,7 @@ class ReservationCreate(Input):
     quantity: int = Field(strict=True, ge=1, le=1000)
 
 class Extension(Input):
+    request_id: UUID | None = None
     days: int = Field(strict=True, ge=1, le=30)
 
 class Configuration(BaseModel):
