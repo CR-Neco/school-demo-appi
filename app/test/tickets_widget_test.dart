@@ -11,7 +11,8 @@ import 'package:appi/main.dart';
 import 'support/ticket_fake.dart';
 
 Future<void> show(WidgetTester tester, Finder finder) async {
-  await tester.scrollUntilVisible(finder, 180);
+  await tester.scrollUntilVisible(finder, 180,
+    scrollable: find.byType(Scrollable).first);
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
 }
