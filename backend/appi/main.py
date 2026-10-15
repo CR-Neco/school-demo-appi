@@ -8,7 +8,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from starlette.exceptions import HTTPException
 
 from .db import Database
@@ -114,6 +114,22 @@ def create_app(db_path: str | None = None, org_token: str | None = None):
     def reservation(reference: str):
         with database.connect() as db:
             return service.present(service.get_reservation(db, reference))
+
+    @router.get('/reservations/{reference}/receipt.pdf', dependencies=org,
+                response_class=Response, responses={200: {'content': {'application/pdf': {}}}})
+    def receipt(reference: str):
+        # Read all document fields in the same database snapshot. No mutation.
+        with database.connect() as db:
+            reservation = service.present(service.get_reservation(db, reference))
+            event = service.get_event(db, reservation['event_id'])
+            school = db.execute('SELECT school FROM config WHERE id=1').fetchone()[0]
+        from .receipts import render_receipt
+        pdf = render_receipt(reservation, event, school)
+        return Response(content=pdf, media_type='application/pdf', headers={
+            'Content-Disposition': 'inline; filename="reservierungsbeleg.pdf"',
+            'Cache-Control': 'no-store',
+            'X-Content-Type-Options': 'nosniff',
+        })
 
     @router.post('/reservations/{reference}/payment', response_model=s.Reservation, dependencies=org)
     def payment(reference: str):

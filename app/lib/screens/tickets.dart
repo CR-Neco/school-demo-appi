@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../fundraising.dart';
 import '../tickets.dart';
 import '../widgets/components.dart';
+import 'receipt.dart';
 
 class TicketsScreen extends StatefulWidget {
   const TicketsScreen({super.key, required this.session, required this.year});
@@ -222,8 +223,12 @@ class _TicketsScreenState extends State<TicketsScreen> {
       const SizedBox(height: 12),
       Text('Zahlungsfrist: ${reservationDeadline(value.expiresAt)}'),
       const SizedBox(height: 16),
-      const Text('Noch keine Eintrittskarte. PDF, QR und Zahlungsinformationen folgen im nächsten Ausbauschritt.'),
+      const Text('Noch keine Eintrittskarte. Der PDF-Beleg enthält Demo-Zahlungsdaten und die Reservierungsreferenz als QR.'),
       const SizedBox(height: 10),
+      FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => ReceiptScreen(reference: value.reference, load: () => session.api.loadReceipt(value.reference)))),
+        icon: const Icon(Icons.picture_as_pdf_outlined), label: const Text('PDF-Beleg öffnen')),
+      const SizedBox(height: 8),
       OutlinedButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => ReservationSummary(reservation: value))),
         child: const Text('Reservierungsdaten öffnen')),
@@ -231,7 +236,7 @@ class _TicketsScreenState extends State<TicketsScreen> {
   ));
 }
 
-/// Uses only the saved server response; PDF/payment details follow in SDA-12.
+/// Compact data view beside the downloadable PDF.
 class ReservationSummary extends StatelessWidget {
   const ReservationSummary({super.key, required this.reservation});
   final Reservation reservation;
@@ -249,7 +254,7 @@ class ReservationSummary extends StatelessWidget {
       Text('Frist: ${reservationDeadline(reservation.expiresAt)}'),
       Text('Status: ${reservation.statusLabel}'),
       const SizedBox(height: 18),
-      const Text('Zahlungsdaten, PDF und QR folgen in SDA-12. Hier werden ausschließlich gespeicherte Reservierungsdaten angezeigt.'),
+      const Text('Den PDF-Beleg mit Demo-Zahlungsdaten und QR findest du auf der vorherigen Bestätigungsseite. Hier werden ausschließlich gespeicherte Reservierungsdaten angezeigt.'),
     ]),
   );
 }

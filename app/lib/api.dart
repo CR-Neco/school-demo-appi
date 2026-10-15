@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'config.dart';
 import 'fundraising.dart';
@@ -89,6 +90,12 @@ class LocalApi implements AppiApi, TicketApi {
     }
   }
 
+  @override
+  Future<Uint8List> loadReceipt(String reference) async {
+    if (orgToken.trim().isEmpty) throw const TicketFailure('Bitte den lokalen Demo-Zugang erneut eingeben.');
+    return await _request('GET', 'reservations/${Uri.encodeComponent(reference)}/receipt.pdf', pdf: true) as Uint8List;
+  }
+
   Map<String, dynamic> _object(dynamic value) {
     if (value is! Map<String, dynamic>) throw const FormatException('JSON-Objekt erwartet');
     return value;
@@ -104,7 +111,7 @@ class LocalApi implements AppiApi, TicketApi {
     }
   }
 
-  Future<dynamic> _request(String method, String path, {Map<String, dynamic>? body}) async {
+  Future<dynamic> _request(String method, String path, {Map<String, dynamic>? body, bool pdf = false}) async {
     HttpClientRequest? activeRequest;
     bool timedOut = false;
     final writing = method == 'POST';
@@ -116,13 +123,32 @@ class LocalApi implements AppiApi, TicketApi {
         request.abort();
         throw TimeoutException('Verbindung zu spät geöffnet');
       }
+      if (writing || pdf) {
+        request.headers.set(HttpHeaders.authorizationHeader, 'Bearer ${orgToken.trim()}');
+      }
+      if (pdf) request.headers.set(HttpHeaders.acceptHeader, 'application/pdf');
       if (writing) {
         request.headers.contentType = ContentType.json;
-        request.headers.set(HttpHeaders.authorizationHeader, 'Bearer ${orgToken.trim()}');
         request.write(jsonEncode(body));
       }
       final response = await request.close();
-      final text = await response.transform(utf8.decoder).join();
+      final buffer = BytesBuilder(copy: false);
+      await for (final chunk in response) {
+        if (buffer.length + chunk.length > 4 * 1024 * 1024) {
+          request.abort();
+          throw TicketFailure('Die Backend-Antwort ist unerwartet groß.', outcomeUnknown: writing);
+        }
+        buffer.add(chunk);
+      }
+      final bytes = buffer.takeBytes();
+      if (response.statusCode >= 200 && response.statusCode < 300 && pdf) {
+        final signature = bytes.length >= 5 ? ascii.decode(bytes.sublist(0, 5), allowInvalid: true) : '';
+        if (response.headers.contentType?.mimeType != 'application/pdf' || signature != '%PDF-') {
+          throw const TicketFailure('Das Backend hat keinen gültigen PDF-Beleg geliefert.');
+        }
+        return bytes;
+      }
+      final text = utf8.decode(bytes);
       if (response.statusCode < 200 || response.statusCode >= 300) {
         String? code;
         String message = 'Das Backend meldet einen Fehler. Bitte erneut versuchen.';
