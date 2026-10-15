@@ -15,7 +15,20 @@ if not flutter:
 
 if not (app_dir / 'ios' / 'Runner.xcodeproj').exists():
     raise SystemExit('Bitte zuerst python3 tool/prepare_ios.py und flutter pub get ausführen.')
-subprocess.run(['open', '-a', 'Simulator'], check=True)
+# LaunchServices does not always register Xcode's bundled Simulator by name.
+# Respect DEVELOPER_DIR, otherwise use the active xcode-select installation.
+developer_dir = os.environ.get('DEVELOPER_DIR')
+if not developer_dir:
+    selected = subprocess.run(['xcode-select', '-p'], capture_output=True, text=True)
+    if selected.returncode == 0:
+        developer_dir = selected.stdout.strip()
+simulator = Path(developer_dir) / 'Applications' / 'Simulator.app' if developer_dir else None
+if simulator is not None and simulator.is_dir():
+    launch = subprocess.run(['open', str(simulator)])
+else:
+    launch = subprocess.run(['open', '-a', 'Simulator'])
+if launch.returncode != 0:
+    raise SystemExit('Simulator konnte nicht geöffnet werden. Bitte Xcode > Open Developer Tool > Simulator öffnen und xcode-select -p prüfen.')
 for _ in range(20):
     result = subprocess.run([flutter, 'devices', '--machine'], capture_output=True, text=True)
     if result.returncode != 0:
