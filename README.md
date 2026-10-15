@@ -117,3 +117,9 @@ keine Open-Source-Lizenz. Klärung von Code-/Asset-Lizenz erfolgt in SDA-17.
 SDA-11 verbindet die Kachel **Abiball-Tickets** mit dem lokalen Backend.
 Start, Demo-Zugang und sichere Anfragewiederholung: [Reservierungsworkflow](docs/reservations.md).
 PDF/QR: [Einrichtung und Abnahme](docs/receipts.md). Org-Zahlungsansicht: [Demo-Ablauf und lokale Prüfung](docs/org-workflow.md).
+
+## Demo-Inhalte und Reset
+
+Kiosk und Verkaufsstände enthalten fiktive Angebote und lokale Illustrationen.
+Vorbereitete Reservierungen, konsistente Abikasse und der lokale Reset:
+[Demo-Daten und Reset](docs/demo-data.md). Komfortabler Starter: `Reset-AppI-Demo.command`.

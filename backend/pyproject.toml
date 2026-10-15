@@ -16,3 +16,6 @@ include = ["appi*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.setuptools.package-data]
+appi = ["demo_data.json"]

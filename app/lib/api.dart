@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'config.dart';
 import 'fundraising.dart';
 import 'tickets.dart';
+import 'demo_content.dart';
 
 class SchoolConfig {
   const SchoolConfig({required this.school, required this.year});
@@ -25,7 +26,7 @@ abstract interface class AppiApi {
 }
 
 /// Local iOS-simulator transport. No third-party networking dependency needed.
-class LocalApi implements AppiApi, TicketApi {
+class LocalApi implements AppiApi, TicketApi, DemoContentApi {
   LocalApi({String baseUrl = AppConfig.apiBaseUrl}) : _baseUrl = baseUrl;
   final String _baseUrl;
   @override
@@ -49,6 +50,15 @@ class LocalApi implements AppiApi, TicketApi {
       return Fundraising.fromJson(json);
     } on FormatException {
       throw const ApiFailure('Die Finanzierungsdaten sind unvollständig. Bitte erneut versuchen.');
+    }
+  }
+
+  @override
+  Future<DemoContent> loadDemoContent() async {
+    try {
+      return DemoContent.fromJson(_object(await _request('GET', 'demo-content')));
+    } on FormatException {
+      throw const TicketFailure('Die Demo-Inhalte sind unvollständig. Bitte erneut versuchen.');
     }
   }
 
