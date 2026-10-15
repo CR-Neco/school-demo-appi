@@ -50,7 +50,6 @@ class FundraisingCard extends StatelessWidget {
             key: const Key('fundraising-progress'), value: totals.barValue, minHeight: 10,
             color: accent, backgroundColor: Colors.white12,
             semanticsLabel: 'Finanzierungsfortschritt',
-            semanticsValue: totals.hasTarget ? percentLabel(totals.percent!) : 'Kein gültiges Ziel',
           )),
           const SizedBox(height: 12),
           Wrap(spacing: 12, runSpacing: 8, children: [
