@@ -37,6 +37,33 @@ Für VS-Code-Tasks den Token in der Umgebung setzen, bevor VS Code aus diesem
 Terminal gestartet wird, oder den Start im integrierten Terminal durchführen.
 Tokens werden nicht als Task-Argumente oder im Repository gespeichert.
 
+## Komfortstart per Doppelklick (macOS)
+
+Nach der einmaligen Python-/venv-Einrichtung im Finder im Projektordner
+**Start-AppI-Backend.command** doppelt anklicken. Ein separates Terminalfenster
+startet das Backend unabhängig von VS Code. Fenster offen lassen, stoppen mit
+**Ctrl+C**. Beim nächsten Mal reicht wieder ein Doppelklick.
+
+Falls bereits ein Server aus VS Code läuft: diesen zuerst mit Ctrl+C stoppen.
+Der Starter erkennt einen belegten Port 8000 und beendet keine anderen Prozesse.
+Es werden keine Tests oder Paketinstallationen automatisch ausgeführt.
+
+Ohne bereits gesetzten `APPI_ORG_TOKEN` erzeugt der Starter einmalig einen lokalen
+Demo-Token in `backend/data/org-token` (nur für den Benutzer lesbar, Git-ignoriert)
+und verwendet ihn bei weiteren Starts erneut. Er wird nicht ausgegeben. Der
+spätere Simulator-Client muss denselben Wert als Org-Token erhalten; automatische
+Flutter-Anbindung folgt mit der App. Das ist kein produktives Login-System.
+
+Der Starter verwendet standardmäßig `backend/data/appi.sqlite3`. Ein ausdrücklich
+in seiner Umgebung gesetzter `APPI_DB_PATH` hat Vorrang. Die Datei `.env` wird
+weiterhin nicht automatisch eingelesen.
+
+Wenn macOS fehlende Ausführungsrechte meldet, einmal im Projektordner:
+
+```bash
+chmod +x Start-AppI-Backend.command
+```
+
 ## Tests ausschließlich lokal
 
 VS Code: **Terminal -> Task ausführen -> AppI: Backend-Tests lokal**.
