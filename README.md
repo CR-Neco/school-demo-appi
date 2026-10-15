@@ -6,8 +6,23 @@ Repository: school-demo-appi. Vorgängeridee: Golden Chalk Awards.
 ## Stand SDA-5
 
 Lokales FastAPI-/SQLite-Backend, persistentes Schema, REST-Vertrag und erste
-Buchungsoperationen. Flutter-Oberfläche folgt in SDA-9 ff.
+Buchungsoperationen. Flutter-Grundoberfläche ist in SDA-9 vorbereitet; lokale Simulator-Abnahme steht aus.
 Alle Inhalte sind fiktiv. Keine echten Zahlungen, Bankanbindung oder Nutzerkonten.
+
+## Simulator-App starten
+
+Backend separat laufen lassen, dann im Finder **Start-AppI-Simulator.command**
+doppelt anklicken. Die App öffnet sich im iOS-Simulator. Alternativ in VS Code:
+
+```bash
+cd app
+python3 tool/prepare_ios.py
+flutter pub get
+python3 tool/run_simulator.py
+```
+
+[Ausführliche Simulator-Anleitung](docs/simulator.md). Kartenverkauf und
+Finanzierungsanzeige folgen in den nächsten Tickets.
 
 ## Backend lokal starten (macOS / VS Code)
 
@@ -74,9 +89,10 @@ cd backend  # nur falls noch im Repository-Root
 python -m pytest -q
 ```
 
-Tests verwenden ausschließlich temporäre Datenbanken und fiktive Daten. Sie sind
-angelegt, wurden durch den KI-Agenten nicht ausgeführt. Laufzeit-/Installations-
-und Testabnahme auf dem lokalen Mac steht aus; keine grüne Testsuite behauptet.
+Backend-Tests verwenden ausschließlich temporäre Datenbanken und fiktive Daten.
+Lokal durch Christian geprüft: 11 Tests erfolgreich, Backend-Start und API-Aufruf
+bestätigt. Der KI-Agent hat keine Tests ausgeführt. Neue Flutter-Tests und der
+Simulator-Build aus SDA-9 müssen separat lokal geprüft werden.
 
 Live-Prompt-Zusatz:
 

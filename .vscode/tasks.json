@@ -5,17 +5,87 @@
       "label": "AppI: Backend starten",
       "type": "shell",
       "command": "${workspaceFolder}/backend/.venv/bin/python",
-      "args": ["-m", "uvicorn", "appi.main:app", "--host", "127.0.0.1", "--port", "8000", "--reload"],
-      "options": {"cwd": "${workspaceFolder}/backend"},
+      "args": [
+        "-m",
+        "uvicorn",
+        "appi.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
       "problemMatcher": []
     },
     {
       "label": "AppI: Backend-Tests lokal",
       "type": "shell",
       "command": "${workspaceFolder}/backend/.venv/bin/python",
-      "args": ["-m", "pytest", "-q"],
-      "options": {"cwd": "${workspaceFolder}/backend"},
-      "group": {"kind": "test", "isDefault": true},
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AppI: Flutter-Abh\u00e4ngigkeiten",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "pub",
+        "get"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AppI: Flutter-Tests lokal",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "test"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "AppI: Flutter analysieren",
+      "type": "shell",
+      "command": "flutter",
+      "args": [
+        "analyze"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AppI: iOS vorbereiten",
+      "type": "shell",
+      "command": "python3",
+      "args": [
+        "tool/prepare_ios.py"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/app"
+      },
       "problemMatcher": []
     }
   ]

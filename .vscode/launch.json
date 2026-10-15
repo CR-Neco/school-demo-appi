@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AppI \u2013 iOS-Simulator",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/app",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=APPI_API_BASE_URL=http://127.0.0.1:8000/api/v1"
+      ],
+      "preLaunchTask": "AppI: iOS vorbereiten"
+    }
+  ]
+}
