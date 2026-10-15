@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../api.dart';
 import '../config.dart';
+import '../fundraising.dart';
+import '../widgets/fundraising_card.dart';
 import '../widgets/components.dart';
 import '../widgets/school_artwork.dart';
 import 'detail.dart';
@@ -13,11 +15,19 @@ class HomeScreen extends StatelessWidget {
     required this.error,
     required this.loading,
     required this.onRetry,
+    required this.dashboard,
+    required this.dashboardError,
+    required this.dashboardLoading,
+    required this.onRefreshDashboard,
   });
   final SchoolConfig? config;
   final String? error;
   final bool loading;
   final VoidCallback onRetry;
+  final Fundraising? dashboard;
+  final String? dashboardError;
+  final bool dashboardLoading;
+  final Future<void> Function() onRefreshDashboard;
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +80,12 @@ class HomeScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 16, color: Color(0xFF617079)),
                 ),
                 const SizedBox(height: 22),
+                FundraisingCard(year: year, data: dashboard,
+                  loading: dashboardLoading, error: dashboardError,
+                  onRefresh: onRefreshDashboard),
+                const SizedBox(height: 18),
                 SizedBox(
-                  height: 190,
+                  height: 145,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(26),
                     child: Stack(
@@ -117,7 +131,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Backend nicht verbunden',
+                            'Schuldaten nicht verfügbar',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 6),
@@ -131,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                if (config != null && error == null)
+                if (config != null && error == null && dashboard != null && dashboardError == null && !dashboardLoading)
                   const Row(
                     children: [
                       Icon(
@@ -169,7 +183,8 @@ class HomeScreen extends StatelessWidget {
                               subtitle: section.subtitle,
                               icon: section.icon,
                               color: section.color,
-                              onTap: () => Navigator.of(context).push(
+                              onTap: () async {
+                                await Navigator.of(context).push(
                                 MaterialPageRoute<void>(
                                   builder: (_) => SectionDetail(
                                     title: section.title,
@@ -179,7 +194,9 @@ class HomeScreen extends StatelessWidget {
                                     items: section.items,
                                   ),
                                 ),
-                              ),
+                              );
+                                await onRefreshDashboard();
+                              },
                             ),
                           ),
                       ],

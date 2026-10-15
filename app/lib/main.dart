@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'api.dart';
 import 'config.dart';
+import 'fundraising.dart';
 import 'screens/home.dart';
 import 'widgets/components.dart';
 import 'widgets/school_artwork.dart';
@@ -15,24 +16,30 @@ class AppiApp extends StatefulWidget {
   State<AppiApp> createState() => _AppiAppState();
 }
 
-class _AppiAppState extends State<AppiApp> {
+class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   late final AppiApi _api;
   SchoolConfig? _config;
   String? _error;
   bool _initial = true;
-  bool _loading = true;
+  bool _loading = false;
+  Fundraising? _dashboard;
+  String? _dashboardError;
+  bool _dashboardLoading = false;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _api = widget.api ?? LocalApi();
     _load();
   }
 
   Future<void> _load() async {
-    if (!_initial)
-      setState(() {
-        _loading = true;
-      });
+    await Future.wait([_loadConfig(), _refreshDashboard()]);
+  }
+
+  Future<void> _loadConfig() async {
+    if (!mounted || _loading) return;
+    setState(() { _loading = true; });
     try {
       final config = await _api.loadConfig();
       if (!mounted) return;
@@ -54,8 +61,33 @@ class _AppiAppState extends State<AppiApp> {
     }
   }
 
+  Future<void> _refreshDashboard() async {
+    if (!mounted || _dashboardLoading) return;
+    setState(() { _dashboardLoading = true; _dashboardError = null; });
+    try {
+      final dashboard = await _api.loadDashboard();
+      if (!mounted) return;
+      setState(() { _dashboard = dashboard; _dashboardLoading = false; });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _dashboard = null;
+        _dashboardError = error is ApiFailure ? error.message : 'Finanzierungsstand konnte nicht geladen werden.';
+        _dashboardLoading = false;
+      });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_initial) {
+      _refreshDashboard();
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _api.close();
     super.dispose();
   }
@@ -84,6 +116,10 @@ class _AppiAppState extends State<AppiApp> {
             error: _error,
             loading: _loading,
             onRetry: _load,
+            dashboard: _dashboard,
+            dashboardError: _dashboardError,
+            dashboardLoading: _dashboardLoading,
+            onRefreshDashboard: _refreshDashboard,
           ),
   );
 }
@@ -95,7 +131,7 @@ class _Splash extends StatelessWidget {
     backgroundColor: ink,
     body: SafeArea(
       child: Center(
-        child: Padding(
+        child: SingleChildScrollView(child: Padding(
           padding: const EdgeInsets.all(28),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -142,7 +178,7 @@ class _Splash extends StatelessWidget {
               ),
             ],
           ),
-        ),
+        )),
       ),
     ),
   );
