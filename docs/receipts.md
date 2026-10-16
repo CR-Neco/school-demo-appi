@@ -50,9 +50,8 @@ Quelle: [printing installieren](https://pub.dev/packages/printing#installing).
 
 Der Token wird wie bisher einmal je App-Lauf in der Ticketansicht eingefügt.
 Nach vollständigem App-Neustart ist auch die letzte Bestätigung nur lokal nicht
-mehr vorhanden; die Buchung bleibt in der Datenbank. Für die Beleg-Abnahme eine
-neue fiktive Reservierung verwenden. Die Übersicht aller Reservierungen folgt
-in SDA-13.
+mehr vorhanden; die Buchung bleibt in der Datenbank. Die Org-Ansicht aus SDA-13 kann die gespeicherte Reservierung erneut öffnen
+und den aktuellen PDF-Beleg abrufen (siehe [Org-Workflow](org-workflow.md)).
 
 ## PDF-Inhalt und QR
 

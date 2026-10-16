@@ -36,8 +36,11 @@ Serverantwort enthält Referenz `id`, event_id, name, quantity, price_cents,
 total_cents, status, created_at, expires_at, paid_at (nullable) und overdue.
 Zeitstempel sind UTC/ISO 8601. IDs sind opak, nicht zerlegen oder selbst erzeugen.
 
-Verlängerung: `{"days":3}` bedeutet drei Tage ab späterem Zeitpunkt von
-jetzt und bisherigem Ablauf. Zahlung/Storno brauchen keinen Request-Body.
+Verlängerung: `{"days":3,"request_id":"<UUID>"}` bedeutet drei Tage ab späterem
+Zeitpunkt von jetzt und bisherigem Ablauf. Seit SDA-13 ist `request_id` optional
+für ältere Clients; die App sendet sie immer. Wiederholungen derselben UUID mit
+denselben Daten verlängern nicht erneut. Andere Referenz/Tage mit derselben UUID
+ergeben 409. Ohne UUID ist eine Verlängerung nicht idempotent. Zahlung/Storno brauchen keinen Request-Body.
 Status: reserved -> paid oder cancelled; beide Endzustände können nicht verlängert
 werden. Zahlung und Storno sind beim Wiederholen desselben Zustands idempotent.
 Bezahlte Buchungen stornieren sowie stornierte Buchungen bezahlen ergibt 409.

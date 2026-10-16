@@ -128,4 +128,36 @@ void main() {
       throwsA(isA<TicketFailure>().having((error) => error.message, 'message', contains('keinen gültigen PDF'))));
   });
 
+  test('Org list, detail, payment, cancellation and extension use the authenticated contract', () async {
+    final paths = <String>[];
+    final methods = <String>[];
+    final auth = <String?>[];
+    final bodies = <String>[];
+    final row = responseFor({'event_id': 'abi-ball', 'name': 'Lina', 'quantity': 2});
+    row['overdue'] = true;
+    server.listen((request) async {
+      paths.add(request.uri.path);
+      methods.add(request.method);
+      auth.add(request.headers.value(HttpHeaders.authorizationHeader));
+      bodies.add(await request.cast<List<int>>().transform(utf8.decoder).join());
+      final Object body = request.uri.path == '/api/v1/reservations' ? [row] : row;
+      request.response.write(jsonEncode(body));
+      await request.response.close();
+    });
+    final list = await api.loadReservations();
+    expect(list.single.overdue, isTrue);
+    await api.loadReservation('ABI-SAVED-REFERENCE');
+    await api.confirmPayment('ABI-SAVED-REFERENCE');
+    await api.cancelReservation('ABI-SAVED-REFERENCE');
+    await api.extendReservation('ABI-SAVED-REFERENCE', days: 3,
+      requestId: 'f509a8bc-58c1-43bc-80a0-92bd356df23e');
+    expect(paths, ['/api/v1/reservations', '/api/v1/reservations/ABI-SAVED-REFERENCE',
+      '/api/v1/reservations/ABI-SAVED-REFERENCE/payment',
+      '/api/v1/reservations/ABI-SAVED-REFERENCE/cancel',
+      '/api/v1/reservations/ABI-SAVED-REFERENCE/extend']);
+    expect(methods, ['GET', 'GET', 'POST', 'POST', 'POST']);
+    expect(auth, everyElement('Bearer local-test-token'));
+    expect(jsonDecode(bodies.last), {'days': 3, 'request_id': 'f509a8bc-58c1-43bc-80a0-92bd356df23e'});
+  });
+
 }

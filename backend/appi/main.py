@@ -144,7 +144,7 @@ def create_app(db_path: str | None = None, org_token: str | None = None):
     @router.post('/reservations/{reference}/extend', response_model=s.Reservation, dependencies=org)
     def extend(reference: str, data: s.Extension):
         with database.connect(write=True) as db:
-            return service.extend(db, reference, data.days)
+            return service.extend(db, reference, data.days, data.request_id)
 
     app.include_router(router)
     return app

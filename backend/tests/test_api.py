@@ -107,3 +107,50 @@ def test_dashboard_preserves_overfunding_and_negative_balance(client):
     with client.app.state.database.connect(write=True) as db:
         db.execute('INSERT INTO ledger (amount_cents, description) VALUES (?, ?)', (-1900000, 'Demo-Ausgabe'))
     assert client.get('/api/v1/dashboard').json()['raised_cents'] == -100000
+
+
+def test_extension_retries_are_idempotent_and_reject_changed_payload(client):
+    from datetime import datetime, timedelta
+    ref = order(client).json()['id']
+    other_ref = order(client, quantity=1).json()['id']
+    before = client.get(f'/api/v1/reservations/{ref}', headers=HEADERS).json()
+    key = str(uuid4())
+    body = {'days': 3, 'request_id': key}
+    first = client.post(f'/api/v1/reservations/{ref}/extend', headers=HEADERS, json=body)
+    assert first.status_code == 200
+    for _ in range(2):
+        repeated = client.post(f'/api/v1/reservations/{ref}/extend', headers=HEADERS, json=body)
+        assert repeated.json()['expires_at'] == first.json()['expires_at']
+    assert datetime.fromisoformat(first.json()['expires_at']) - datetime.fromisoformat(before['expires_at']) == timedelta(days=3)
+    assert client.post(f'/api/v1/reservations/{ref}/extend', headers=HEADERS,
+                       json={'days': 4, 'request_id': key}).status_code == 409
+    assert client.post(f'/api/v1/reservations/{other_ref}/extend', headers=HEADERS, json=body).status_code == 409
+    assert client.get('/api/v1/dashboard').json()['raised_cents'] == 0
+    assert client.get('/api/v1/events/abi-ball/availability').json()['reserved'] == 3
+
+
+def test_extension_request_survives_backend_restart(tmp_path):
+    path = str(tmp_path / 'extension.sqlite3')
+    body = {'days': 3, 'request_id': str(uuid4())}
+    with TestClient(create_app(path, 'local-test-token')) as first:
+        ref = order(first).json()['id']
+        deadline = first.post(f'/api/v1/reservations/{ref}/extend', headers=HEADERS, json=body).json()['expires_at']
+    with TestClient(create_app(path, 'local-test-token')) as second:
+        retried = second.post(f'/api/v1/reservations/{ref}/extend', headers=HEADERS, json=body)
+        assert retried.status_code == 200
+        assert retried.json()['expires_at'] == deadline
+
+
+def test_schema_v1_upgrade_preserves_reservations(tmp_path):
+    from appi.db import Database
+    path = str(tmp_path / 'migration.sqlite3')
+    with TestClient(create_app(path, 'local-test-token')) as client:
+        saved = order(client).json()
+    # Reconstruct the previous schema version without the added request table.
+    with Database(path).connect(write=True) as db:
+        db.execute('DROP TABLE reservation_extensions')
+        db.execute('PRAGMA user_version=1')
+    with TestClient(create_app(path, 'local-test-token')) as client:
+        assert client.get(f"/api/v1/reservations/{saved['id']}", headers=HEADERS).json() == saved
+        with client.app.state.database.connect() as db:
+            assert db.execute('PRAGMA user_version').fetchone()[0] == 2

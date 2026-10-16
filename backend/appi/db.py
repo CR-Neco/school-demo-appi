@@ -23,7 +23,10 @@ CREATE TABLE IF NOT EXISTS ledger (
  id INTEGER PRIMARY KEY, reservation_id TEXT UNIQUE REFERENCES reservations(id),
  action_id TEXT REFERENCES actions(id), amount_cents INTEGER NOT NULL,
  description TEXT NOT NULL);
-PRAGMA user_version=1;
+CREATE TABLE IF NOT EXISTS reservation_extensions (
+ request_id TEXT PRIMARY KEY, reservation_id TEXT NOT NULL REFERENCES reservations(id),
+ days INTEGER NOT NULL CHECK(days BETWEEN 1 AND 30));
+PRAGMA user_version=2;
 """
 
 class Database:
@@ -49,7 +52,7 @@ class Database:
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.path) as db:
             version = db.execute('PRAGMA user_version').fetchone()[0]
-            if version not in (0, 1):
+            if version not in (0, 1, 2):
                 raise RuntimeError('Unsupported database schema version')
             db.executescript(SCHEMA)
             # Minimal bootstrap; richer reproducible scenarios and reset follow SDA-8.
