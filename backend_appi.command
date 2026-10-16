@@ -14,8 +14,8 @@ fail() {
 }
 
 cd "$BACKEND_DIR"
-printf '\033]0;AppI 2027 – Backend\007'
-printf '\nAppI 2027 – lokales Backend\n\n'
+printf '\033]0;PMG AppI – Backend\007'
+printf '\nPMG AppI – lokales Backend\n\n'
 
 [ -x "$PYTHON" ] || fail "Python-Umgebung fehlt. Bitte zuerst die Einrichtung in README.md durchführen."
 "$PYTHON" -c 'import uvicorn; from appi.main import app' >/dev/null 2>&1 || 

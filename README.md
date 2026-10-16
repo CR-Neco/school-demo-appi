@@ -1,4 +1,4 @@
-# AppI 2027
+# PMG AppI
 
 Kleine AI-Coding-Demo zur Abiball-Organisation am PMG Meine.
 Repository: school-demo-appi. Vorgängeridee: Golden Chalk Awards.
@@ -6,8 +6,23 @@ Repository: school-demo-appi. Vorgängeridee: Golden Chalk Awards.
 ## Stand SDA-5
 
 Lokales FastAPI-/SQLite-Backend, persistentes Schema, REST-Vertrag und erste
-Buchungsoperationen. Flutter-Oberfläche folgt in SDA-9 ff.
+Buchungsoperationen. Flutter-Grundoberfläche ist in SDA-9 vorbereitet; lokale Simulator-Abnahme steht aus.
 Alle Inhalte sind fiktiv. Keine echten Zahlungen, Bankanbindung oder Nutzerkonten.
+
+## Simulator-App starten
+
+Backend separat laufen lassen, dann im Finder **Start-AppI-Simulator.command**
+doppelt anklicken. Die App öffnet sich im iOS-Simulator. Alternativ in VS Code:
+
+```bash
+cd app
+python3 tool/prepare_ios.py
+flutter pub get
+python3 tool/run_simulator.py
+```
+
+[Ausführliche Simulator-Anleitung](docs/simulator.md). Kartenverkauf und
+Finanzierungsanzeige folgen in den nächsten Tickets.
 
 ## Backend lokal starten (macOS / VS Code)
 
@@ -40,7 +55,7 @@ Tokens werden nicht als Task-Argumente oder im Repository gespeichert.
 ## Komfortstart per Doppelklick (macOS)
 
 Nach der einmaligen Python-/venv-Einrichtung im Finder im Projektordner
-**Start-AppI-Backend.command** doppelt anklicken. Ein separates Terminalfenster
+**backend_appi.command** doppelt anklicken. Ein separates Terminalfenster
 startet das Backend unabhängig von VS Code. Fenster offen lassen, stoppen mit
 **Ctrl+C**. Beim nächsten Mal reicht wieder ein Doppelklick.
 
@@ -61,7 +76,7 @@ weiterhin nicht automatisch eingelesen.
 Wenn macOS fehlende Ausführungsrechte meldet, einmal im Projektordner:
 
 ```bash
-chmod +x Start-AppI-Backend.command
+chmod +x backend_appi.command
 ```
 
 ## Tests ausschließlich lokal
@@ -74,9 +89,10 @@ cd backend  # nur falls noch im Repository-Root
 python -m pytest -q
 ```
 
-Tests verwenden ausschließlich temporäre Datenbanken und fiktive Daten. Sie sind
-angelegt, wurden durch den KI-Agenten nicht ausgeführt. Laufzeit-/Installations-
-und Testabnahme auf dem lokalen Mac steht aus; keine grüne Testsuite behauptet.
+Backend-Tests verwenden ausschließlich temporäre Datenbanken und fiktive Daten.
+Lokal durch Christian geprüft: 11 Tests erfolgreich, Backend-Start und API-Aufruf
+bestätigt. Der KI-Agent hat keine Tests ausgeführt. Neue Flutter-Tests und der
+Simulator-Build aus SDA-9 müssen separat lokal geprüft werden.
 
 Live-Prompt-Zusatz:
 

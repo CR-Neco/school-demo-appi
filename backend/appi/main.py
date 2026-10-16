@@ -26,7 +26,7 @@ def create_app(db_path: str | None = None, org_token: str | None = None):
         database.initialize()
         yield
 
-    app = FastAPI(title='AppI 2027 – lokale Demo-API', version='0.1.0', lifespan=lifespan)
+    app = FastAPI(title='PMG AppI – lokale Demo-API', version='0.1.0', lifespan=lifespan)
     app.state.database = database
 
     def error(status, code, message):
