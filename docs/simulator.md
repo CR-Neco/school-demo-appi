@@ -3,8 +3,8 @@
 ## Stand
 
 Flutter-Grundprojekt mit Splash, Startseite, Backend-Konfiguration und vier
-navigierbaren Bereichen. Es gibt noch keinen Kartenverkauf in der Oberfläche und
-noch keinen Fundraising-Balken. Diese Funktionen folgen in SDA-10 bis SDA-14.
+navigierbaren Bereichen. SDA-10 ergänzt den Finanzierungsbalken mit Backend-Summen. Der Kartenverkauf
+in der Oberfläche folgt in SDA-11 bis SDA-14. Details: dashboard.md.
 Die Startseite stellt Demo-Inhalte dar, keine aktuellen Angebote der Schule.
 
 Der Splash bleibt nur während des ersten Konfigurationsabrufs sichtbar, maximal

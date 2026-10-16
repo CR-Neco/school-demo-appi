@@ -21,8 +21,8 @@ flutter pub get
 python3 tool/run_simulator.py
 ```
 
-[Ausführliche Simulator-Anleitung](docs/simulator.md). Kartenverkauf und
-Finanzierungsanzeige folgen in den nächsten Tickets.
+[Ausführliche Simulator-Anleitung](docs/simulator.md). Die Finanzierungsanzeige lädt echte Backend-Summen. Kartenverkauf folgt in den
+nächsten Tickets. [Dashboard-Abnahme](docs/dashboard.md).
 
 ## Backend lokal starten (macOS / VS Code)
 

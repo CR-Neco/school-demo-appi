@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'config.dart';
+import 'fundraising.dart';
 
 class SchoolConfig {
   const SchoolConfig({required this.school, required this.year});
@@ -17,6 +18,7 @@ class ApiFailure implements Exception {
 
 abstract interface class AppiApi {
   Future<SchoolConfig> loadConfig();
+  Future<Fundraising> loadDashboard();
   void close();
 }
 
@@ -29,41 +31,51 @@ class LocalApi implements AppiApi {
 
   @override
   Future<SchoolConfig> loadConfig() async {
+    final json = await _getJson('config');
+    if (json['school'] is! String || json['year'] is! int) {
+      throw const ApiFailure('Die Schulkonfiguration ist ungültig.');
+    }
+    return SchoolConfig(school: json['school'] as String, year: json['year'] as int);
+  }
+
+  @override
+  Future<Fundraising> loadDashboard() async {
+    final json = await _getJson('dashboard');
     try {
-      return await _fetchConfig().timeout(const Duration(seconds: 6));
-    } on ApiFailure {
-      rethrow;
-    } on TimeoutException {
-      throw const ApiFailure(
-        'Das Backend antwortet gerade nicht. Bitte Verbindung erneut versuchen.',
-      );
-    } on SocketException {
-      throw const ApiFailure(
-        'Starte das AppI-Backend auf deinem Mac und versuche es erneut.',
-      );
-    } on Exception {
-      throw const ApiFailure(
-        'Die Backend-Antwort konnte nicht geladen werden. Bitte erneut versuchen.',
-      );
+      return Fundraising.fromJson(json);
+    } on FormatException {
+      throw const ApiFailure('Die Finanzierungsdaten sind unvollständig. Bitte erneut versuchen.');
     }
   }
 
-  Future<SchoolConfig> _fetchConfig() async {
+  Future<Map<String, dynamic>> _getJson(String path) async {
+    try {
+      return await _fetchJson(path).timeout(const Duration(seconds: 6));
+    } on ApiFailure {
+      rethrow;
+    } on TimeoutException {
+      throw const ApiFailure('Das Backend antwortet gerade nicht. Bitte erneut versuchen.');
+    } on SocketException {
+      throw const ApiFailure('Starte das AppI-Backend auf deinem Mac und versuche es erneut.');
+    } on Exception {
+      throw const ApiFailure('Die Backend-Antwort konnte nicht geladen werden. Bitte erneut versuchen.');
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchJson(String path) async {
     final base = _baseUrl.replaceFirst(RegExp(r'/+$'), '');
-    final request = await _client.getUrl(Uri.parse('$base/config'));
+    final request = await _client.getUrl(Uri.parse('$base/$path'));
     final response = await request.close();
     if (response.statusCode != 200) {
       await response.drain<void>();
-      throw const ApiFailure(
-        'Das Backend meldet einen Fehler. Bitte erneut versuchen.',
-      );
+      throw const ApiFailure('Das Backend meldet einen Fehler. Bitte erneut versuchen.');
     }
     final body = await response.transform(utf8.decoder).join();
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    return SchoolConfig(
-      school: json['school'] as String,
-      year: json['year'] as int,
-    );
+    final json = jsonDecode(body);
+    if (json is! Map<String, dynamic>) {
+      throw const ApiFailure('Das Backend hat ein ungültiges Datenformat geliefert.');
+    }
+    return json;
   }
 
   @override

@@ -86,3 +86,24 @@ def test_concurrent_last_ticket(tmp_path):
         with ThreadPoolExecutor(max_workers=2) as pool:
             assert sorted(pool.map(attempt, range(2))) == [200, 409]
         assert setup.get('/api/v1/events/abi-ball/availability').json()['available'] == 0
+
+
+def test_dashboard_counts_ledger_net_and_ignores_unpaid_reservations(client):
+    assert order(client, quantity=3).status_code == 200
+    with client.app.state.database.connect(write=True) as db:
+        db.execute('INSERT INTO ledger (action_id, amount_cents, description) VALUES (?, ?, ?)',
+                   ('kiosk', 12000, 'Demo-Einnahme'))
+        db.execute('INSERT INTO ledger (action_id, amount_cents, description) VALUES (?, ?, ?)',
+                   ('kiosk', -3500, 'Demo-Ausgabe'))
+    response = client.get('/api/v1/dashboard')
+    assert response.status_code == 200
+    assert response.json()['raised_cents'] == 8500
+
+
+def test_dashboard_preserves_overfunding_and_negative_balance(client):
+    with client.app.state.database.connect(write=True) as db:
+        db.execute('INSERT INTO ledger (amount_cents, description) VALUES (?, ?)', (1800000, 'Demo'))
+    assert client.get('/api/v1/dashboard').json()['progress_percent'] == 120.0
+    with client.app.state.database.connect(write=True) as db:
+        db.execute('INSERT INTO ledger (amount_cents, description) VALUES (?, ?)', (-1900000, 'Demo-Ausgabe'))
+    assert client.get('/api/v1/dashboard').json()['raised_cents'] == -100000
