@@ -10,15 +10,16 @@ Kiosk und Verkaufsstände sind in SDA-14 mit fiktiven Angeboten, lokalen
 Illustrationen und aktuellen Demo-Ledger-Summen befüllt. Ausgangsdaten und
 Reset: [demo-data.md](demo-data.md). Keine aktuellen Angebote der Schule.
 
-Der Splash bleibt nur während des ersten Konfigurationsabrufs sichtbar, maximal
-bis zum Netzwerk-Timeout. Keine künstliche Mindestdauer. Bei Fehlern zeigt die
+Der Splash bleibt ab dem ersten Flutter-Frame mindestens zwei Sekunden sichtbar.
+Der erste Konfigurationsabruf läuft parallel; bei langsamem Backend wartet der
+Splash darüber hinaus bis zum Abschluss bzw. Netzwerk-Timeout. Bei Fehlern zeigt die
 Startseite einen Hinweis und Wiederholen; die Vorschau bleibt nutzbar.
 
-Die Campusgrafik ist ein eigener geometrischer CustomPainter-Platzhalter in
-`app/lib/widgets/school_artwork.dart`, keine Aufnahme oder Nachbildung des PMG.
-Es werden keine fremden Schulbilder, Logos, Webfonts oder Laufzeit-Bilder geladen.
-Sie kann später durch ein freigegebenes Schulbild ersetzt werden. Jahrgang und
-Schulname: Defaults in `config.dart`, bei Verbindung aus Backend `/config`.
+Die Startseiten-Bildkachel nutzt das bereitgestellte PMG-Schulbild. Der Splash
+kombiniert das Original-Logo mit einer generierten Illustration fiktiver Schüler.
+Alle Bilder sind lokal gebündelt; es gibt keine Bildabrufe von der Schulwebsite.
+Assets, Herkunft und App-Icon: [branding.md](branding.md). Jahrgang und Schulname:
+Defaults in `config.dart`, bei Verbindung aus Backend `/config`.
 Die globale Lizenzfrage für das Projekt bleibt in SDA-17 zu klären.
 
 ## Start auf dem Mac
@@ -83,7 +84,8 @@ und Hot-Reload-Abnahme müssen auf dem Mac erfolgen. Kein iPhone-Build erforderl
 `app/ios/` wird lokal erzeugt und ist Git-ignoriert. Die Erzeugung erfolgt in
 einem temporären Flutter-Projekt; vorhandener Dart-Code und pubspec bleiben
 unberührt. Ein unvollständiger iOS-Ordner wird nicht automatisch überschrieben.
-Der Starter setzt App-Anzeigename und die lokale Netzwerk-Ausnahme in Info.plist.
+Der Starter setzt App-Anzeigename und die lokale Netzwerk-Ausnahme in Info.plist
+und installiert das PMG-App-Icon in allen benötigten iOS-Auflösungen.
 Eine spätere produktive iOS-Konfiguration ist ein eigener Schritt.
 
 Auf dieser Arbeitsumgebung konnte die Flutter-SDK-Initialisierung wegen einer

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23501" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="PMG-controller">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23501"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="PMG-scene">
+            <objects>
+                <viewController id="PMG-controller" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="PMG-root">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="PMGSplashBackground" translatesAutoresizingMaskIntoConstraints="NO" id="PMG-background"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" image="PMGLogo" translatesAutoresizingMaskIntoConstraints="NO" id="PMG-logo"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="PMG AppI" textAlignment="center" adjustsFontSizeToFit="YES" minimumFontSize="22" translatesAutoresizingMaskIntoConstraints="NO" id="PMG-title">
+                                <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="42"/>
+                                <color key="textColor" red="0.0902" green="0.1765" blue="0.2157" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="PMG-safe"/>
+                        <color key="backgroundColor" red="0.965" green="0.965" blue="0.941" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="PMG-background" firstAttribute="leading" secondItem="PMG-root" secondAttribute="leading" id="bg-left"/>
+                            <constraint firstItem="PMG-background" firstAttribute="trailing" secondItem="PMG-root" secondAttribute="trailing" id="bg-right"/>
+                            <constraint firstItem="PMG-background" firstAttribute="top" secondItem="PMG-root" secondAttribute="top" id="bg-top"/>
+                            <constraint firstItem="PMG-background" firstAttribute="bottom" secondItem="PMG-root" secondAttribute="bottom" id="bg-bottom"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="top" secondItem="PMG-safe" secondAttribute="top" constant="44" id="logo-top"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="centerX" secondItem="PMG-root" secondAttribute="centerX" id="logo-center"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="leading" secondItem="PMG-safe" secondAttribute="leading" constant="28" priority="750" id="logo-preferred-width"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="PMG-safe" secondAttribute="leading" constant="28" id="logo-margin"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="width" relation="lessThanOrEqual" constant="360" id="logo-max-width"/>
+                            <constraint firstItem="PMG-logo" firstAttribute="height" secondItem="PMG-logo" secondAttribute="width" multiplier="163:600" id="logo-aspect"/>
+                            <constraint firstItem="PMG-title" firstAttribute="top" secondItem="PMG-logo" secondAttribute="bottom" constant="28" id="title-top"/>
+                            <constraint firstItem="PMG-title" firstAttribute="leading" secondItem="PMG-logo" secondAttribute="leading" id="title-left"/>
+                            <constraint firstItem="PMG-title" firstAttribute="trailing" secondItem="PMG-logo" secondAttribute="trailing" id="title-right"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PMG-responder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="PMGSplashBackground" width="960" height="1440"/>
+        <image name="PMGLogo" width="600" height="163"/>
+    </resources>
+</document>

@@ -5,6 +5,7 @@ The generated project lives in a temporary directory first, so flutter create
 cannot overwrite AppI source, pubspec, tests or documentation.
 """
 import os
+import json
 from pathlib import Path
 import plistlib
 import shutil
@@ -34,9 +35,56 @@ plist_path = ios_dir / 'Runner' / 'Info.plist'
 with plist_path.open('rb') as stream:
     config = plistlib.load(stream)
 config['CFBundleDisplayName'] = 'PMG AppI'
+config['UILaunchStoryboardName'] = 'LaunchScreen'
 config['NSLocalNetworkUsageDescription'] = 'Verbindung zum lokalen AppI-Demo-Backend und Flutter-Debugger.'
 # Only local networking is allowed as a demo exception; no global arbitrary loads.
 config.setdefault('NSAppTransportSecurity', {})['NSAllowsLocalNetworking'] = True
 with plist_path.open('wb') as stream:
     plistlib.dump(config, stream, sort_keys=False)
-print('iOS-Host vorbereitet. AppI-Quellcode bleibt unverändert.', flush=True)
+
+# The native host is ignored by Git. Reapply the versioned icon on every run,
+# including hosts that were generated before the PMG branding was introduced.
+# sips ships with macOS, so no Pillow or additional Python environment is needed.
+icon_source = app_dir / 'assets' / 'branding' / 'app-icon.png'
+icon_dir = ios_dir / 'Runner' / 'Assets.xcassets' / 'AppIcon.appiconset'
+icon_dir.mkdir(parents=True, exist_ok=True)
+images = []
+for idiom, sizes in (
+    ('iphone', [('20', [2, 3]), ('29', [2, 3]), ('40', [2, 3]), ('60', [2, 3])]),
+    ('ipad', [('20', [1, 2]), ('29', [1, 2]), ('40', [1, 2]), ('76', [1, 2]), ('83.5', [2])]),
+    ('ios-marketing', [('1024', [1])]),
+):
+    for size, scales in sizes:
+        for scale in scales:
+            pixels = str(round(float(size) * scale))
+            filename = f'PMG-{idiom}-{size}@{scale}x.png'
+            destination = icon_dir / filename
+            if pixels == '1024':
+                shutil.copyfile(icon_source, destination)
+            else:
+                subprocess.run(['/usr/bin/sips', '-z', pixels, pixels,
+                                str(icon_source), '--out', str(destination)],
+                               check=True, stdout=subprocess.DEVNULL)
+            images.append({'idiom': idiom, 'size': f'{size}x{size}',
+                           'scale': f'{scale}x', 'filename': filename})
+(icon_dir / 'Contents.json').write_text(
+    json.dumps({'images': images, 'info': {'version': 1, 'author': 'xcode'}}, indent=2) + '\n'
+)
+
+# iOS shows this storyboard before Flutter renders its first frame. Updating
+# only the Dart splash leaves the generated host's white launch screen intact.
+for name, filename in (
+    ('PMGSplashBackground', 'splash-students.jpg'),
+    ('PMGLogo', 'pmg-logo.png'),
+):
+    destination = ios_dir / 'Runner' / 'Assets.xcassets' / f'{name}.imageset'
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(app_dir / 'assets' / 'branding' / filename, destination / filename)
+    (destination / 'Contents.json').write_text(json.dumps({
+        'images': [{'idiom': 'universal', 'filename': filename}],
+        'info': {'version': 1, 'author': 'xcode'},
+    }, indent=2) + '\n')
+launch_screen = ios_dir / 'Runner' / 'Base.lproj' / 'LaunchScreen.storyboard'
+launch_screen.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(app_dir / 'tool' / 'branding' / 'LaunchScreen.storyboard', launch_screen)
+print('iOS-Host, PMG-App-Icon und nativer Splash vorbereitet.', flush=True)

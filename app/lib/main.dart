@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'api.dart';
@@ -8,7 +10,7 @@ import 'org.dart';
 import 'demo_content.dart';
 import 'screens/home.dart';
 import 'widgets/components.dart';
-import 'widgets/school_artwork.dart';
+import 'widgets/brand_splash.dart';
 
 void main() => runApp(const AppiApp());
 
@@ -26,6 +28,8 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   SchoolConfig? _config;
   String? _error;
   bool _initial = true;
+  bool _splashElapsed = false;
+  Timer? _splashTimer;
   bool _loading = false;
   Fundraising? _dashboard;
   String? _dashboardError;
@@ -34,6 +38,12 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _splashTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) setState(() { _splashElapsed = true; });
+      });
+    });
     _api = widget.api ?? LocalApi();
     final api = _api;
     if (api is TicketApi) {
@@ -97,6 +107,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _splashTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _org?.dispose();
     _tickets?.dispose();
@@ -121,8 +132,8 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
         foregroundColor: ink,
       ),
     ),
-    home: _initial
-        ? const _Splash()
+    home: _initial || !_splashElapsed
+        ? const BrandSplash()
         : HomeScreen(
             tickets: _tickets,
             org: _org,
@@ -136,65 +147,5 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
             dashboardLoading: _dashboardLoading,
             onRefreshDashboard: _refreshDashboard,
           ),
-  );
-}
-
-class _Splash extends StatelessWidget {
-  const _Splash();
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: ink,
-    body: SafeArea(
-      child: Center(
-        child: SingleChildScrollView(child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: 210,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: const SchoolArtwork(),
-                ),
-              ),
-              const SizedBox(height: 28),
-              const Text(
-                AppConfig.name,
-                style: TextStyle(
-                  color: accent,
-                  fontSize: 48,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                AppConfig.tagline,
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              const SizedBox(height: 14),
-              const Text('Abiturjahrgang ${AppConfig.year}', style: TextStyle(color: Colors.white70)),
-              const SizedBox(height: 8),
-              const Text(
-                AppConfig.school,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 13),
-              ),
-              const SizedBox(height: 26),
-              const SizedBox(
-                width: 26,
-                height: 26,
-                child: CircularProgressIndicator(color: accent, strokeWidth: 2),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Jahrgang wird geladen …',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ],
-          ),
-        )),
-      ),
-    ),
   );
 }
