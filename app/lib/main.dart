@@ -5,6 +5,7 @@ import 'config.dart';
 import 'fundraising.dart';
 import 'tickets.dart';
 import 'org.dart';
+import 'demo_content.dart';
 import 'screens/home.dart';
 import 'widgets/components.dart';
 import 'widgets/school_artwork.dart';
@@ -125,6 +126,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
         : HomeScreen(
             tickets: _tickets,
             org: _org,
+            contentApi: _api is DemoContentApi ? _api as DemoContentApi : null,
             config: _config,
             error: _error,
             loading: _loading,

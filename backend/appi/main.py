@@ -81,6 +81,12 @@ def create_app(db_path: str | None = None, org_token: str | None = None):
         with database.connect() as db:
             return [dict(row) for row in db.execute('SELECT * FROM actions ORDER BY id')]
 
+    @router.get('/demo-content')
+    def demo_content():
+        from .demo import catalog
+        with database.connect() as db:
+            return catalog(db)
+
     @router.get('/events', response_model=list[s.Event])
     def events():
         with database.connect() as db:

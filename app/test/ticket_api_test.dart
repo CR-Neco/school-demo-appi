@@ -160,4 +160,23 @@ void main() {
     expect(jsonDecode(bodies.last), {'days': 3, 'request_id': 'f509a8bc-58c1-43bc-80a0-92bd356df23e'});
   });
 
+  test('Demo catalog uses public GET and parses current ledger contribution', () async {
+    String? path, auth;
+    server.listen((request) async {
+      path = request.uri.path;
+      auth = request.headers.value(HttpHeaders.authorizationHeader);
+      request.response.write(jsonEncode({
+        'is_demo': true,
+        'kiosk': {'title': 'Schulkiosk', 'description': 'Demo', 'opening': 'Mo–Do', 'location': 'Mensa',
+          'products': [], 'notes': [], 'income_cents': 86000, 'expenses_cents': 26000, 'raised_cents': 60000},
+        'actions': [], 'contacts': [],
+      }));
+      await request.response.close();
+    });
+    final content = await api.loadDemoContent();
+    expect(path, '/api/v1/demo-content');
+    expect(auth, isNull);
+    expect(content.kiosk.finance.raisedCents, 60000);
+  });
+
 }

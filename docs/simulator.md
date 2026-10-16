@@ -6,7 +6,9 @@ Flutter-Grundprojekt mit Splash, Startseite, Backend-Konfiguration und vier
 navigierbaren Bereichen. SDA-10 ergänzt den Finanzierungsbalken mit Backend-Summen. SDA-11 ergänzt die Kartenreservierung
 ([Ablauf](reservations.md)); SDA-12 ergänzt den PDF-Beleg ([Einrichtung](receipts.md)); SDA-13 ergänzt die Org-Verwaltung ([Ablauf](org-workflow.md)).
 Details zum Dashboard: dashboard.md.
-Die Startseite stellt Demo-Inhalte dar, keine aktuellen Angebote der Schule.
+Kiosk und Verkaufsstände sind in SDA-14 mit fiktiven Angeboten, lokalen
+Illustrationen und aktuellen Demo-Ledger-Summen befüllt. Ausgangsdaten und
+Reset: [demo-data.md](demo-data.md). Keine aktuellen Angebote der Schule.
 
 Der Splash bleibt nur während des ersten Konfigurationsabrufs sichtbar, maximal
 bis zum Netzwerk-Timeout. Keine künstliche Mindestdauer. Bei Fehlern zeigt die

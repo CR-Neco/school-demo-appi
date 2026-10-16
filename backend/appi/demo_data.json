@@ -1,0 +1,33 @@
+{
+  "config": {"school": "Philipp Melanchthon Gymnasium Meine", "year": 2027, "target_cents": 1500000, "reservation_days": 5, "ticket_price_cents": 4500, "capacity": 300},
+  "kiosk": {
+    "id": "kiosk", "title": "Schulkiosk", "description": "Eine kleine Pause für euch. Ein großer Beitrag für euren Ball.",
+    "location": "Mensa", "opening": "Mo–Do · große Pause", "artwork": "kiosk",
+    "products": [
+      {"name": "Kaffee", "description": "Frisch aufgebrüht", "price_cents": 150},
+      {"name": "Brezel", "description": "Für die Pause zwischendurch", "price_cents": 120},
+      {"name": "Wasser", "description": "0,5 l · Beispielpreis ohne Pfand", "price_cents": 100},
+      {"name": "Schoko-Muffin", "description": "Die süße Alternative", "price_cents": 180}
+    ],
+    "notes": [
+      {"title": "Die nächste Schicht", "body": "Beispiel: Montag, große Pause · Alex & Jamie. Wer übernimmt Aufbau, Verkauf und Kasse?"},
+      {"title": "Vor dem Abschließen", "body": "Kasse zählen, Bestand notieren und den Platz sauber hinterlassen. Dies ist ein Demo-Merkzettel, keine Warenwirtschaft."}
+    ],
+    "seed_income_cents": 86000, "seed_expenses_cents": 26000
+  },
+  "actions": [
+    {"id": "schulfest", "title": "Schulfest", "date_label": "Beispiel: 12. Juni · 14–18 Uhr", "location": "Schulhof", "description": "Kuchen, Limo und gute Gespräche. Ein gemeinsamer Stand für den Jahrgang.", "artwork": "festival", "chips": ["Kuchen & Getränke", "Teamwork"], "idea": "Wer bringt etwas mit, und wer übernimmt den Verkauf?", "seed_income_cents": 72000, "seed_expenses_cents": 18000},
+    {"id": "leseabend", "title": "Leseabend", "date_label": "Beispiel: 6. November · 18 Uhr", "location": "Aula", "description": "In der Pause zwischen den Geschichten gibt es kleine Snacks und warme Getränke.", "artwork": "reading", "chips": ["Snacks", "Abendschicht"], "idea": "Welche Snacks wären leise, lecker und leicht vorzubereiten?", "seed_income_cents": 24000, "seed_expenses_cents": 6000},
+    {"id": "sportfest", "title": "Sportfest", "date_label": "Beispiel: 21. Mai · ab 9 Uhr", "location": "Sportplatz", "description": "Erfrischungen am Spielfeldrand. Gemeinsam laufen, anfeuern und die Abikasse füllen.", "artwork": "sports", "chips": ["Erfrischungen", "Draußen"], "idea": "Wie bleiben Getränke kühl, und wann brauchen wir die meisten Helfer?", "seed_income_cents": 41000, "seed_expenses_cents": 11000}
+  ],
+  "contacts": [
+    {"name": "Alex Beispiel", "role": "Kiosk & Verkaufsstände"},
+    {"name": "Sam Beispiel", "role": "Karten & Abikasse"}
+  ],
+  "reservations": [
+    {"id": "ABI-DEMO-OFFEN", "name": "Lina Beispiel", "quantity": 2, "status": "reserved", "created_days": -2, "expires_days": 3},
+    {"id": "ABI-DEMO-BEZAHLT", "name": "Nora Muster", "quantity": 3, "status": "paid", "created_days": -3, "expires_days": 2},
+    {"id": "ABI-DEMO-UEBERFAELLIG", "name": "Alex Demofall", "quantity": 2, "status": "reserved", "created_days": -6, "expires_days": -1},
+    {"id": "ABI-DEMO-STORNIERT", "name": "Sam Demofall", "quantity": 1, "status": "cancelled", "created_days": -4, "expires_days": 1}
+  ]
+}

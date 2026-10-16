@@ -7,6 +7,7 @@ Die spätere Flutter-App erhält diese Adresse als Konfiguration (geplant:
 | Methode / Pfad | Ergebnis | Org-Token |
 |---|---|---|
 | GET /config | Schule, Jahrgang, Ziel in Cent, Reservierungsdauer | nein |
+| GET /demo-content | Fiktive Angebote/Aktionen/Kontakte und aktuelle Aktions-Ledger-Summen | nein |
 | GET /actions | Kiosk und Verkaufsaktionen (minimale Stammdaten) | nein |
 | GET /events | Veranstaltungen, Preis in Cent und Kontingent | nein |
 | GET /events/{id}/availability | available, reserved, paid, capacity | nein |
@@ -67,4 +68,4 @@ Nur lokaler Zugriff. Kein öffentliches Reservierungsportal, kein Käufer-Link,
 PDF oder Scanner in SDA-5. SDA-12 ergänzt den PDF-Beleg; Details: [receipts.md](receipts.md). Website folgt SDA-18. Der Org-Token
 wird nicht im QR hinterlegt. Demo-Frist standardmäßig fünf Tage, Ticketpreis
 45 EUR und 300 Karten; dies sind fiktive Bootstrap-Werte, keine PMG-Angaben.
-Erweiterte Seed-Daten/Reset folgen SDA-8.
+Seed-Daten und lokaler Reset: [demo-data.md](demo-data.md). Kein öffentlicher Reset-Endpunkt.

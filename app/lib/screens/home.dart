@@ -11,12 +11,15 @@ import 'tickets.dart';
 import '../tickets.dart';
 import '../org.dart';
 import 'org.dart';
+import '../demo_content.dart';
+import 'demo_sections.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     super.key,
     this.tickets,
     this.org,
+    this.contentApi,
     required this.config,
     required this.error,
     required this.loading,
@@ -28,6 +31,7 @@ class HomeScreen extends StatelessWidget {
   });
   final TicketSession? tickets;
   final OrgSession? org;
+  final DemoContentApi? contentApi;
   final SchoolConfig? config;
   final String? error;
   final bool loading;
@@ -198,6 +202,8 @@ class HomeScreen extends StatelessWidget {
                                     ? TicketsScreen(session: tickets!, year: year)
                                     : section.title == 'Org-Team' && org != null
                                     ? OrgScreen(session: org!)
+                                    : (section.title == 'Kiosk' || section.title == 'Verkaufsstände') && contentApi != null
+                                    ? DemoSectionsScreen(api: contentApi!, kiosk: section.title == 'Kiosk')
                                     : SectionDetail(
                                     title: section.title,
                                     icon: section.icon,
