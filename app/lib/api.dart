@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'config.dart';
 import 'fundraising.dart';
+import 'tickets.dart';
 
 class SchoolConfig {
   const SchoolConfig({required this.school, required this.year});
@@ -23,9 +24,11 @@ abstract interface class AppiApi {
 }
 
 /// Local iOS-simulator transport. No third-party networking dependency needed.
-class LocalApi implements AppiApi {
+class LocalApi implements AppiApi, TicketApi {
   LocalApi({String baseUrl = AppConfig.apiBaseUrl}) : _baseUrl = baseUrl;
   final String _baseUrl;
+  @override
+  String orgToken = const String.fromEnvironment('APPI_ORG_TOKEN');
   final HttpClient _client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 4);
 
@@ -48,34 +51,105 @@ class LocalApi implements AppiApi {
     }
   }
 
-  Future<Map<String, dynamic>> _getJson(String path) async {
+  @override
+  Future<TicketSale> loadTicketSale() async {
+    final config = _object(await _request('GET', 'config'));
+    final events = await _request('GET', 'events');
+    if (events is! List) throw const TicketFailure('Veranstaltungen sind unvollständig.');
+    final matches = events.whereType<Map<String, dynamic>>().where((event) => event['id'] == 'abi-ball');
+    if (matches.isEmpty) throw const TicketFailure('Der Demo-Abiball ist noch nicht eingerichtet.');
+    final event = matches.first;
+    final price = event['price_cents'];
+    final days = config['reservation_days'];
+    final title = event['title'];
+    if (price is! int || price < 0 || days is! int || days < 1 || title is! String) {
+      throw const TicketFailure('Die Veranstaltungsdaten sind unvollständig.');
+    }
+    return TicketSale(eventId: 'abi-ball', title: title, priceCents: price,
+      reservationDays: days, stock: await loadTicketStock('abi-ball'));
+  }
+
+  @override
+  Future<TicketStock> loadTicketStock(String eventId) async {
     try {
-      return await _fetchJson(path).timeout(const Duration(seconds: 6));
-    } on ApiFailure {
-      rethrow;
-    } on TimeoutException {
-      throw const ApiFailure('Das Backend antwortet gerade nicht. Bitte erneut versuchen.');
-    } on SocketException {
-      throw const ApiFailure('Starte das AppI-Backend auf deinem Mac und versuche es erneut.');
-    } on Exception {
-      throw const ApiFailure('Die Backend-Antwort konnte nicht geladen werden. Bitte erneut versuchen.');
+      return TicketStock.fromJson(_object(await _request('GET', 'events/${Uri.encodeComponent(eventId)}/availability')));
+    } on FormatException {
+      throw const TicketFailure('Die Verfügbarkeit konnte nicht gelesen werden.');
     }
   }
 
-  Future<Map<String, dynamic>> _fetchJson(String path) async {
-    final base = _baseUrl.replaceFirst(RegExp(r'/+$'), '');
-    final request = await _client.getUrl(Uri.parse('$base/$path'));
-    final response = await request.close();
-    if (response.statusCode != 200) {
-      await response.drain<void>();
-      throw const ApiFailure('Das Backend meldet einen Fehler. Bitte erneut versuchen.');
+  @override
+  Future<Reservation> reserveTickets(ReservationRequest request) async {
+    if (orgToken.trim().isEmpty) throw const TicketFailure('Bitte zuerst den lokalen Demo-Zugang eingeben.');
+    final result = await _request('POST', 'reservations', body: request.toJson());
+    try {
+      return Reservation.fromJson(_object(result));
+    } catch (_) {
+      throw const TicketFailure('Die Bestätigung ist unvollständig. Bitte dieselbe Anfrage erneut senden.', outcomeUnknown: true);
     }
-    final body = await response.transform(utf8.decoder).join();
-    final json = jsonDecode(body);
-    if (json is! Map<String, dynamic>) {
+  }
+
+  Map<String, dynamic> _object(dynamic value) {
+    if (value is! Map<String, dynamic>) throw const FormatException('JSON-Objekt erwartet');
+    return value;
+  }
+
+  Future<Map<String, dynamic>> _getJson(String path) async {
+    try {
+      return _object(await _request('GET', path));
+    } on TicketFailure catch (error) {
+      throw ApiFailure(error.message);
+    } on FormatException {
       throw const ApiFailure('Das Backend hat ein ungültiges Datenformat geliefert.');
     }
-    return json;
+  }
+
+  Future<dynamic> _request(String method, String path, {Map<String, dynamic>? body}) async {
+    HttpClientRequest? activeRequest;
+    bool timedOut = false;
+    final writing = method == 'POST';
+    Future<dynamic> send() async {
+      final base = _baseUrl.replaceFirst(RegExp(r'/+$'), '');
+      final request = await _client.openUrl(method, Uri.parse('$base/$path'));
+      activeRequest = request;
+      if (timedOut) {
+        request.abort();
+        throw TimeoutException('Verbindung zu spät geöffnet');
+      }
+      if (writing) {
+        request.headers.contentType = ContentType.json;
+        request.headers.set(HttpHeaders.authorizationHeader, 'Bearer ${orgToken.trim()}');
+        request.write(jsonEncode(body));
+      }
+      final response = await request.close();
+      final text = await response.transform(utf8.decoder).join();
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        String? code;
+        String message = 'Das Backend meldet einen Fehler. Bitte erneut versuchen.';
+        try {
+          final error = _object(_object(jsonDecode(text))['error']);
+          code = error['code'] as String?;
+          message = error['message'] as String? ?? message;
+        } catch (_) { /* A non-JSON failure must not hide its HTTP status. */ }
+        // Only explicit client errors establish that this request was rejected.
+        final rejected = {401, 403, 404, 409, 422}.contains(response.statusCode);
+        throw TicketFailure(message, code: code, outcomeUnknown: writing && !rejected);
+      }
+      return jsonDecode(text);
+    }
+    try {
+      return await send().timeout(const Duration(seconds: 6));
+    } on TicketFailure {
+      rethrow;
+    } on TimeoutException {
+      timedOut = true;
+      activeRequest?.abort();
+      throw TicketFailure('Das Backend antwortet gerade nicht. Bitte erneut versuchen.', outcomeUnknown: writing);
+    } on SocketException {
+      throw TicketFailure('Starte das AppI-Backend auf deinem Mac und versuche es erneut.', outcomeUnknown: writing);
+    } on Exception {
+      throw TicketFailure('Die Backend-Antwort konnte nicht gelesen werden. Bitte erneut versuchen.', outcomeUnknown: writing);
+    }
   }
 
   @override

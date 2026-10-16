@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'api.dart';
 import 'config.dart';
 import 'fundraising.dart';
+import 'tickets.dart';
 import 'screens/home.dart';
 import 'widgets/components.dart';
 import 'widgets/school_artwork.dart';
@@ -18,6 +19,7 @@ class AppiApp extends StatefulWidget {
 
 class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   late final AppiApi _api;
+  TicketSession? _tickets;
   SchoolConfig? _config;
   String? _error;
   bool _initial = true;
@@ -30,6 +32,8 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _api = widget.api ?? LocalApi();
+    final api = _api;
+    if (api is TicketApi) _tickets = TicketSession(api as TicketApi);
     _load();
   }
 
@@ -88,6 +92,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _tickets?.dispose();
     _api.close();
     super.dispose();
   }
@@ -112,6 +117,7 @@ class _AppiAppState extends State<AppiApp> with WidgetsBindingObserver {
     home: _initial
         ? const _Splash()
         : HomeScreen(
+            tickets: _tickets,
             config: _config,
             error: _error,
             loading: _loading,

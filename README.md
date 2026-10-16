@@ -111,3 +111,9 @@ Live-Prompt-Zusatz:
 
 Noch keine Lizenzentscheidung getroffen; öffentliche Sichtbarkeit allein ist
 keine Open-Source-Lizenz. Klärung von Code-/Asset-Lizenz erfolgt in SDA-17.
+
+## Kartenreservierung
+
+SDA-11 verbindet die Kachel **Abiball-Tickets** mit dem lokalen Backend.
+Start, Demo-Zugang und sichere Anfragewiederholung: [Reservierungsworkflow](docs/reservations.md).
+PDF/QR und Org-Zahlungsansicht folgen in SDA-12/SDA-13.

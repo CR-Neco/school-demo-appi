@@ -3,8 +3,9 @@
 ## Stand
 
 Flutter-Grundprojekt mit Splash, Startseite, Backend-Konfiguration und vier
-navigierbaren Bereichen. SDA-10 ergänzt den Finanzierungsbalken mit Backend-Summen. Der Kartenverkauf
-in der Oberfläche folgt in SDA-11 bis SDA-14. Details: dashboard.md.
+navigierbaren Bereichen. SDA-10 ergänzt den Finanzierungsbalken mit Backend-Summen. SDA-11 ergänzt die Kartenreservierung
+([Ablauf](reservations.md)); PDF und Org-Verwaltung folgen in SDA-12/SDA-13.
+Details zum Dashboard: dashboard.md.
 Die Startseite stellt Demo-Inhalte dar, keine aktuellen Angebote der Schule.
 
 Der Splash bleibt nur während des ersten Konfigurationsabrufs sichtbar, maximal
@@ -56,8 +57,9 @@ unter derselben Adresse. Andere Zieladresse über `APPI_API_BASE_URL` beim Start
 oder `--dart-define=APPI_API_BASE_URL=...` bei `flutter run`. Änderungen dieses
 Wertes benötigen einen Neustart des Flutter-Laufs, keinen bloßen Hot Reload.
 
-In SDA-9 wird nur die öffentliche Konfiguration geladen, kein Org-Token benötigt.
-Der spätere Kartenworkflow erhält seinen Zugang separat. Keine Tokens in Git.
+Dashboard und Schulkonfiguration benötigen keinen Org-Token. Der Kartenworkflow
+verwendet den vorhandenen lokalen Demo-Token; Einrichtung und Ablauf stehen in
+[reservations.md](reservations.md). Keine Tokens in Git.
 Lokales HTTP ist eine Demo-Ausnahme; für öffentliche Nutzung HTTPS vorsehen.
 
 ## Lokale Prüfungen
