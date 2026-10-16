@@ -101,4 +101,31 @@ void main() {
       requestId: 'f509a8bc-58c1-43bc-80a0-92bd356df23e', eventId: 'abi-ball', name: 'Lina', quantity: 2)),
       throwsA(isA<TicketFailure>().having((error) => error.outcomeUnknown, 'outcomeUnknown', true)));
   });
+  test('PDF uses authenticated binary GET and keeps the opaque reference intact', () async {
+    String? auth, path, method;
+    server.listen((request) async {
+      auth = request.headers.value(HttpHeaders.authorizationHeader);
+      path = request.uri.path;
+      method = request.method;
+      request.response.headers.contentType = ContentType('application', 'pdf');
+      request.response.add('%PDF-1.4 test'.codeUnits);
+      await request.response.close();
+    });
+    final bytes = await api.loadReceipt('ABI-SAVED-REFERENCE');
+    expect(ascii.decode(bytes), '%PDF-1.4 test');
+    expect(auth, 'Bearer local-test-token');
+    expect(path, '/api/v1/reservations/ABI-SAVED-REFERENCE/receipt.pdf');
+    expect(method, 'GET');
+  });
+
+  test('HTML or JSON masquerading as a successful PDF is rejected', () async {
+    server.listen((request) async {
+      request.response.headers.contentType = ContentType.html;
+      request.response.write('<html>Not a PDF</html>');
+      await request.response.close();
+    });
+    await expectLater(api.loadReceipt('ABI-SAVED-REFERENCE'),
+      throwsA(isA<TicketFailure>().having((error) => error.message, 'message', contains('keinen gültigen PDF'))));
+  });
+
 }

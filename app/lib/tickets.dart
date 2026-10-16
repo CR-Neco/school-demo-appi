@@ -15,6 +15,7 @@ abstract interface class TicketApi {
   Future<TicketSale> loadTicketSale();
   Future<TicketStock> loadTicketStock(String eventId);
   Future<Reservation> reserveTickets(ReservationRequest request);
+  Future<Uint8List> loadReceipt(String reference);
 }
 
 int _integer(Map<String, dynamic> json, String key) {

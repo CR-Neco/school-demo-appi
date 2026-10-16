@@ -14,6 +14,7 @@ Die spätere Flutter-App erhält diese Adresse als Konfiguration (geplant:
 | POST /reservations | Reservierung erstellen oder sichere Wiederholung | ja |
 | GET /reservations | Org-Liste mit Status und Frist | ja |
 | GET /reservations/{reference} | Reservierungsdetail | ja |
+| GET /reservations/{reference}/receipt.pdf | PDF-Beleg mit Demo-Bankdaten und QR | ja |
 | POST /reservations/{reference}/payment | Vollzahlung bestätigen | ja |
 | POST /reservations/{reference}/extend | Offene Frist verlängern | ja |
 | POST /reservations/{reference}/cancel | Offene Reservierung stornieren | ja |
@@ -60,7 +61,7 @@ Ziel liegen; visuelle Begrenzung des Balkens erfolgt später im Frontend.
 ## Demo-Grenzen
 
 Nur lokaler Zugriff. Kein öffentliches Reservierungsportal, kein Käufer-Link,
-PDF oder Scanner in SDA-5. QR/Beleg folgt SDA-12, Website SDA-18. Der Org-Token
+PDF oder Scanner in SDA-5. SDA-12 ergänzt den PDF-Beleg; Details: [receipts.md](receipts.md). Website folgt SDA-18. Der Org-Token
 wird nicht im QR hinterlegt. Demo-Frist standardmäßig fünf Tage, Ticketpreis
 45 EUR und 300 Karten; dies sind fiktive Bootstrap-Werte, keine PMG-Angaben.
 Erweiterte Seed-Daten/Reset folgen SDA-8.

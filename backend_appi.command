@@ -18,7 +18,7 @@ printf '\033]0;PMG AppI – Backend\007'
 printf '\nPMG AppI – lokales Backend\n\n'
 
 [ -x "$PYTHON" ] || fail "Python-Umgebung fehlt. Bitte zuerst die Einrichtung in README.md durchführen."
-"$PYTHON" -c 'import uvicorn; from appi.main import app' >/dev/null 2>&1 || 
+"$PYTHON" -c 'import uvicorn; import reportlab; from appi.main import app' >/dev/null 2>&1 ||
     fail "Backend-Abhängigkeiten fehlen. Im Ordner backend die .venv aktivieren und python -m pip install -e '.[dev]' ausführen."
 
 # Festes lokales Ziel, passend zur Simulator-Demo; keinen bestehenden Prozess beenden.

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:appi/tickets.dart';
 
 const sale = TicketSale(eventId: 'abi-ball', title: 'Abiball (Demo)',
@@ -14,8 +16,16 @@ class FakeTicketApi implements TicketApi {
   String orgToken = 'local-test-token';
   final List<ReservationRequest> requests = [];
   int stockCalls = 0;
+  int receiptCalls = 0;
+  Future<Uint8List> Function(String)? receiptHandler;
   Future<Reservation> Function(ReservationRequest)? handler;
   Future<TicketStock> Function()? stockHandler;
+  @override
+  Future<Uint8List> loadReceipt(String reference) async {
+    receiptCalls++;
+    if (receiptHandler != null) return await receiptHandler!(reference);
+    return Uint8List.fromList('%PDF-1.4 fake'.codeUnits);
+  }
   @override
   Future<TicketSale> loadTicketSale() async => sale;
   @override

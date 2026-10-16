@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -153,4 +154,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(session.reservation, isNotNull);
   });
+  testWidgets('Saved reservation opens the PDF route for its exact reference', (tester) async {
+    final api = FakeTicketApi();
+    final pending = Completer<Uint8List>();
+    String? requestedReference;
+    api.receiptHandler = (reference) {
+      requestedReference = reference;
+      return pending.future;
+    };
+    final session = TicketSession(api);
+    addTearDown(session.dispose);
+    await open(tester, session);
+    await fill(tester);
+    await show(tester, find.byKey(const Key('reserve-tickets')));
+    await tester.tap(find.byKey(const Key('reserve-tickets')));
+    await tester.pumpAndSettle();
+    await show(tester, find.text('PDF-Beleg öffnen'));
+    await tester.tap(find.text('PDF-Beleg öffnen'));
+    // A pending load intentionally avoids invoking native PDF rasterization here.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Reservierungsbeleg'), findsOneWidget);
+    expect(requestedReference, 'ABI-DEMO-123');
+    expect(api.receiptCalls, 1);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    pending.complete(Uint8List.fromList('%PDF-1.4 test'.codeUnits));
+    await tester.pump();
+    expect(api.requests, hasLength(1));
+  });
+
 }

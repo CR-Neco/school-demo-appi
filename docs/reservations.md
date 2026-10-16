@@ -21,7 +21,8 @@ sind ausdrücklich fiktiv. Es gibt keine echten Zahlungen oder Buchungen.
 5. Einen fiktiven Namen und beispielsweise zwei Karten eingeben. Bei unverändertem
    Bootstrap-Preis erscheint **90,00 €**. Reservieren speichert im Backend.
 6. Bestätigung zeigt gespeicherte Referenz, Anzahl, Betrag, Status und exakte Frist.
-   **Reservierungsdaten öffnen** zeigt dieselben Serverdaten in einer Übersicht.
+   **PDF-Beleg öffnen** öffnet den PDF-Beleg; **Reservierungsdaten öffnen**
+   zeigt die kompakten Serverdaten in einer Übersicht. Einrichtung: [receipts.md](receipts.md).
 7. Das Kontingent wird nach Erfolg erneut geladen: zwei zusätzliche Karten sind
    reserviert. Dashboard-Einnahmen ändern sich durch diese Reservierung nicht.
 
@@ -51,9 +52,9 @@ Optional lässt sich der Token beim App-Start per `--dart-define=APPI_ORG_TOKEN=
 
 ## Grenzen und nächste Schritte
 
-SDA-12 ergänzt den tatsächlichen PDF-Beleg mit Zahlungsdaten, QR und Teilen.
-Die jetzige Reservierungsübersicht ist kein PDF oder Bankbeleg. Damit ist der
-PDF-bezogene Teil von SDA-11-AK 5 bis zur Integration von SDA-12 noch offen.
+SDA-12 ergänzt den tatsächlichen PDF-Beleg mit Demo-Zahlungsdaten, QR und Teilen.
+Die Reservierungsübersicht bleibt daneben als kompakte Datenansicht erhalten.
+Einrichtung und Abnahme des PDFs: [receipts.md](receipts.md).
 SDA-13 ergänzt Zahlungseingang, Verlängerung und Storno in der Org-Ansicht.
 PMG-Branding ist als spätere Änderung vorgemerkt; Card-Größen bleiben bewusst
 für mögliche Schülerideen unverändert.
